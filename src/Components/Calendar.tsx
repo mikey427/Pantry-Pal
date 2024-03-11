@@ -7,169 +7,79 @@ interface PlannedMonth {
 }
 
 export default function Calendar({ }: Props) {
+    // State variables
     const [currentMonthIndex, setCurrentMonthIndex] = useState(new Date().getMonth());
     const [selectedDay, setSelectedDay] = useState<string | null>();
     const [input, setInput] = useState("");    
     const [plannedMeals, setPlannedMeals] = useState<PlannedMonth>({
-        1: '',
-        2: '',
-        3: '',
-        4: '',
-        5: '',
-        6: '',
-        7: '',
-        8: '',
-        9: '',
-        10: '',
-        11: '',
-        12: '',
-        13: '',
-        14: '',
-        15: '',
-        16: '',
-        17: '',
-        18: '',
-        19: '',
-        20: '',
-        21: '',
-        22: '',
-        23: '',
-        24: '',
-        25: '',
-        26: '',
-        27: '',
-        28: '',
-        29: '',
-        30: '',
-        31: '',
+        // Initialize planned meals for the month with empty strings
+        1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '', 8: '', 9: '', 10: '',
+        11: '', 12: '', 13: '', 14: '', 15: '', 16: '', 17: '', 18: '', 19: '', 20: '',
+        21: '', 22: '', 23: '', 24: '', 25: '', 26: '', 27: '', 28: '', 29: '', 30: '', 31: '',
     })
-    // let data: any = localStorage.getItem("data");
-    // // console.log(data);
-    // if(!data) {
-    //     localStorage.setItem("data", JSON.stringify(plannedMeals));
-    // } else {
-    //     setPlannedMeals(data);
-    //     console.log(plannedMeals);
-    // }
 
-    // localStorage.setItem("myCat", "Tom");
-
+    // Function to retrieve planned meals data from local storage
     const retrieveLocalData = (): void => {
         let data: any = localStorage.getItem(getMonthName(currentMonthIndex));
-        // console.log(data);
-        console.log('data', data)
-        if(!data) {
-            localStorage.setItem(getMonthName(currentMonthIndex), JSON.stringify({
-                1: '',
-                2: '',
-                3: '',
-                4: '',
-                5: '',
-                6: '',
-                7: '',
-                8: '',
-                9: '',
-                10: '',
-                11: '',
-                12: '',
-                13: '',
-                14: '',
-                15: '',
-                16: '',
-                17: '',
-                18: '',
-                19: '',
-                20: '',
-                21: '',
-                22: '',
-                23: '',
-                24: '',
-                25: '',
-                26: '',
-                27: '',
-                28: '',
-                29: '',
-                30: '',
-                31: '',
-            }));
-            setPlannedMeals({
-                1: '',
-                2: '',
-                3: '',
-                4: '',
-                5: '',
-                6: '',
-                7: '',
-                8: '',
-                9: '',
-                10: '',
-                11: '',
-                12: '',
-                13: '',
-                14: '',
-                15: '',
-                16: '',
-                17: '',
-                18: '',
-                19: '',
-                20: '',
-                21: '',
-                22: '',
-                23: '',
-                24: '',
-                25: '',
-                26: '',
-                27: '',
-                28: '',
-                29: '',
-                30: '',
-                31: '',
-            })
+        // If data not found in local storage, initialize it with empty strings
+        if (!data) {
+            localStorage.setItem(getMonthName(currentMonthIndex), JSON.stringify({ ...plannedMeals }));
+            setPlannedMeals({ ...plannedMeals });
         } else {
+            // If data found in local storage, set plannedMeals state with retrieved data
             setPlannedMeals(JSON.parse(data));
         }
     }
 
+    // Function to update planned meals data in local storage
     const updateLocalData = (): void => {
         localStorage.setItem(getMonthName(currentMonthIndex), JSON.stringify(plannedMeals));
     }
 
-    
+    // Function to handle day selection
     const selectDay = (day: string): void => {
         if (!day) {
             return; // Do nothing if day is empty
         }
+        // Set input field with the planned meal for the selected day
         setInput(plannedMeals[day]);
         setSelectedDay(day);
     }
     
+    // Function to handle form submission
     const handleSubmit = (event: any, day: string): void => {
         event.stopPropagation();
-        // Update plannedMeals with the input value for the selected day
+        // Update planned meal for the selected day
         let temp: any = plannedMeals;
         temp[Number(day)] = input;
-        // setPlannedMeals({...plannedMeals, [Number(day)]: input});
-
         
-        // Set selectedDay to "10" and hide the input field
-        
-        setInput(""); // Clear the input field
+        // Clear input field and hide the form
+        setInput("");
         setSelectedDay(null);
+        
+        // Update local storage with the modified planned meals data
         updateLocalData();
     }
 
+    // Function to get the number of days in a month
     const daysInMonth = (year: number, month: number) => {
         return new Date(year, month + 1, 0).getDate();
     };
 
+    // Function to get the days for the specified month
     const getDaysForMonth = (year: number, month: number) => {
+        // Get the first day of the month and calculate the number of days in the month
         const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         const firstDayOfMonth = new Date(year, month, 1);
         const startDay = daysOfWeek[firstDayOfMonth.getDay()];
         const daysInThisMonth = daysInMonth(year, month);
+        
+        // Create an array of days in the month
         const emptyCells = Array.from({ length: daysOfWeek.indexOf(startDay) }, (_, i) => '');
         const daysOfMonth = Array.from({ length: daysInThisMonth }, (_, i) => (i + 1).toString());
         const allDays = [...emptyCells, ...daysOfMonth];
+        
+        // Split the days into weeks
         const weeks: string[][] = [];
         while (allDays.length > 0) {
             weeks.push(allDays.splice(0, 7));
@@ -177,14 +87,17 @@ export default function Calendar({ }: Props) {
         return weeks;
     };
 
+    // Function to handle previous month button click
     const handlePrevMonth = () => {
         setCurrentMonthIndex((prevIndex) => (prevIndex === 0 ? 11 : prevIndex - 1));
     };
 
+    // Function to handle next month button click
     const handleNextMonth = () => {
         setCurrentMonthIndex((prevIndex) => (prevIndex === 11 ? 0 : prevIndex + 1));
     };
 
+    // Function to get the name of the month for the specified index
     const getMonthName = (index: number) => {
         const monthNames = [
             "January", "February", "March", "April", "May", "June",
@@ -193,15 +106,17 @@ export default function Calendar({ }: Props) {
         return monthNames[index];
     };
 
+    // Get current year, day, and month
     const currentYear = new Date().getFullYear();
     const currentDay = new Date().getDate();
     const currentMonth = new Date().getMonth();
     
+    // Effect hook to retrieve local data when currentMonthIndex changes
     useEffect(() => {
         retrieveLocalData();
-        console.log("rerender");
-      }, [currentMonthIndex]);
+    }, [currentMonthIndex]);
 
+    // Render the calendar component
     return (
         <div className="p-4">
             <div className="flex justify-between mb-4">
@@ -235,7 +150,7 @@ export default function Calendar({ }: Props) {
                                     }}></input>
                                     <button type="submit" className='w-4 h-4 bg-green-400' onClick={(event) => {
                                         handleSubmit(event, day);
-                                    }}></button></form> : null}
+                                    }}></button></form> : <form style={{ display: 'none' }}></form>}
                                 </td>
                             ))}
                         </tr>
