@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { retrieveLocalData, updateLocalData } from '../utils';
 
 type Props = {};
 
@@ -10,7 +11,7 @@ export default function Calendar({ }: Props) {
     // State variables
     const [currentMonthIndex, setCurrentMonthIndex] = useState(new Date().getMonth());
     const [selectedDay, setSelectedDay] = useState<string | null>();
-    const [input, setInput] = useState("");    
+    const [input, setInput] = useState("");
     const [plannedMeals, setPlannedMeals] = useState<PlannedMonth>({
         // Initialize planned meals for the month with empty strings
         1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '', 8: '', 9: '', 10: '',
@@ -19,17 +20,17 @@ export default function Calendar({ }: Props) {
     })
 
     // Function to retrieve planned meals data from local storage
-    const retrieveLocalData = (): void => {
-        let data: any = localStorage.getItem(getMonthName(currentMonthIndex));
-        // If data not found in local storage, initialize it with empty strings
-        if (!data) {
-            localStorage.setItem(getMonthName(currentMonthIndex), JSON.stringify({ ...plannedMeals }));
-            setPlannedMeals({ ...plannedMeals });
-        } else {
-            // If data found in local storage, set plannedMeals state with retrieved data
-            setPlannedMeals(JSON.parse(data));
-        }
-    }
+    // const retrieveLocalData = (): void => {
+    //     let data: any = localStorage.getItem(getMonthName(currentMonthIndex));
+    //     // If data not found in local storage, initialize it with empty strings
+    //     if (!data) {
+    //         localStorage.setItem(getMonthName(currentMonthIndex), JSON.stringify({ ...plannedMeals }));
+    //         setPlannedMeals({ ...plannedMeals });
+    //     } else {
+    //         // If data found in local storage, set plannedMeals state with retrieved data
+    //         setPlannedMeals(JSON.parse(data));
+    //     }
+    // }
 
     // Function to update planned meals data in local storage
     const updateLocalData = (): void => {
@@ -45,18 +46,18 @@ export default function Calendar({ }: Props) {
         setInput(plannedMeals[day]);
         setSelectedDay(day);
     }
-    
+
     // Function to handle form submission
     const handleSubmit = (event: any, day: string): void => {
         event.stopPropagation();
         // Update planned meal for the selected day
         let temp: any = plannedMeals;
         temp[Number(day)] = input;
-        
+
         // Clear input field and hide the form
         setInput("");
         setSelectedDay(null);
-        
+
         // Update local storage with the modified planned meals data
         updateLocalData();
     }
@@ -73,12 +74,12 @@ export default function Calendar({ }: Props) {
         const firstDayOfMonth = new Date(year, month, 1);
         const startDay = daysOfWeek[firstDayOfMonth.getDay()];
         const daysInThisMonth = daysInMonth(year, month);
-        
+
         // Create an array of days in the month
         const emptyCells = Array.from({ length: daysOfWeek.indexOf(startDay) }, (_, i) => '');
         const daysOfMonth = Array.from({ length: daysInThisMonth }, (_, i) => (i + 1).toString());
         const allDays = [...emptyCells, ...daysOfMonth];
-        
+
         // Split the days into weeks
         const weeks: string[][] = [];
         while (allDays.length > 0) {
@@ -110,10 +111,12 @@ export default function Calendar({ }: Props) {
     const currentYear = new Date().getFullYear();
     const currentDay = new Date().getDate();
     const currentMonth = new Date().getMonth();
-    
+
     // Effect hook to retrieve local data when currentMonthIndex changes
     useEffect(() => {
-        retrieveLocalData();
+        console.log(getMonthName(currentMonthIndex))
+        setPlannedMeals(retrieveLocalData("calendarData", getMonthName(currentMonthIndex)));
+
     }, [currentMonthIndex]);
 
     // Render the calendar component
@@ -148,9 +151,9 @@ export default function Calendar({ }: Props) {
                                     {selectedDay === day ? <form><input placeholder='test' value={input} autoFocus onChange={(event) => {
                                         setInput(event.target.value);
                                     }}></input>
-                                    <button type="submit" className='w-4 h-4 bg-green-400' onClick={(event) => {
-                                        handleSubmit(event, day);
-                                    }}></button></form> : <form style={{ display: 'none' }}></form>}
+                                        <button type="submit" className='w-4 h-4 bg-green-400' onClick={(event) => {
+                                            handleSubmit(event, day);
+                                        }}></button></form> : <form style={{ display: 'none' }}></form>}
                                 </td>
                             ))}
                         </tr>

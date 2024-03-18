@@ -18,7 +18,7 @@ export default function Navbar({ }: Props) {
             <Link className=' flex items-center m-auto bg bg-yellow-300 w-48 h-full rounded-2xl hover:bg-yellow-500 hover:shadow-lg' to="/ingredients" >
                 <p className='mx-auto'>Ingredients</p>
             </Link>
-            <Link className=' flex items-center m-auto bg bg-green-500 w-48 h-full rounded-2xl hover:bg-green-700 hover:shadow-lg' to="/" >
+            <Link className=' flex items-center m-auto bg bg-green-500 w-48 h-full rounded-2xl hover:bg-green-700 hover:shadow-lg' to="/shopping_list" >
                 <p className='mx-auto'>Shopping List</p>
             </Link>
             <Link className=' flex items-center m-auto bg bg-blue-500 w-48 h-full rounded-2xl hover:bg-blue-700 hover:shadow-lg' to="/" >
