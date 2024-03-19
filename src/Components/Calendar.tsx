@@ -33,9 +33,9 @@ export default function Calendar({ }: Props) {
     // }
 
     // Function to update planned meals data in local storage
-    const updateLocalData = (): void => {
-        localStorage.setItem(getMonthName(currentMonthIndex), JSON.stringify(plannedMeals));
-    }
+    // const updateLocalData = (): void => {
+    //     localStorage.setItem(getMonthName(currentMonthIndex), JSON.stringify(plannedMeals));
+    // }
 
     // Function to handle day selection
     const selectDay = (day: string): void => {
@@ -59,7 +59,7 @@ export default function Calendar({ }: Props) {
         setSelectedDay(null);
 
         // Update local storage with the modified planned meals data
-        updateLocalData();
+        updateLocalData(getMonthName(currentMonthIndex), plannedMeals)
     }
 
     // Function to get the number of days in a month

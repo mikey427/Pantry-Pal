@@ -1,4 +1,5 @@
 import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
+import { retrieveLocalData, updateLocalData } from '../utils';
 
 type Props = {};
 
@@ -19,23 +20,25 @@ export default function IngredientAccordion({ }: Props) {
     const [selected, setSelected] = useState("");
 
 
-    // Function to retrieve planned meals data from local storage
-    const retrieveLocalData = (): void => {
-        let data: any = localStorage.getItem("ingredients");
-        // If data not found in local storage, initialize it with empty strings
-        if (!data) {
-            localStorage.setItem("ingredients", JSON.stringify(categories));
-            setCategories([...categories]);
-        } else {
-            // If data found in local storage, set plannedMeals state with retrieved data
-            setCategories(JSON.parse(data));
-        }
-    }
+    // // Function to retrieve planned meals data from local storage
+    // const retrieveLocalData = (): void => {
+    //     let data: any = localStorage.getItem("ingredients");
+    //     // If data not found in local storage, initialize it with empty strings
+    //     if (!data) {
+    //         localStorage.setItem("ingredients", JSON.stringify(categories));
+    //         setCategories([...categories]);
+    //     } else {
+    //         // If data found in local storage, set plannedMeals state with retrieved data
+    //         setCategories(JSON.parse(data));
+    //     }
+    // }
+
+
 
     // Function to update planned meals data in local storage
-    const updateLocalData = (): void => {
-        localStorage.setItem("ingredients", JSON.stringify(categories));
-    }
+    // const updateLocalData = (): void => {
+    //     localStorage.setItem("ingredients", JSON.stringify(categories));
+    // }
 
     const toggleAccordion = (categoryId: number) => {
         setCategories(categories.map(category => {
@@ -52,7 +55,7 @@ export default function IngredientAccordion({ }: Props) {
         temp[categoryIndex].foods[index] = input;
         setCategories([...temp]);
         setInput("");
-        updateLocalData();
+        updateLocalData("ingredients", categories);
     }
 
     const handleCategoryEdit = (event: any, categoryIndex: number): void => {
@@ -65,36 +68,33 @@ export default function IngredientAccordion({ }: Props) {
         setCategories([...temp]);
         setInput("");
         setSelected("");
-        updateLocalData();
+        updateLocalData("ingredients", categories);
     }
 
     const handleAddFood = (categoryIndex: number): void => {
         let temp: Category[] = [...categories];
         temp[categoryIndex].foods.push("New Food"); // Add your default food item here
         setCategories([...temp]);
-        updateLocalData();
+        updateLocalData("ingredients", categories);
     }
 
     const handleDeleteCategory = (categoryId: number): void => {
         let temp: Category[] = categories;
         temp = temp.filter(category => category.id !== categoryId);
         setCategories(temp);
-        updateLocalData();
+        updateLocalData("ingredients", categories);
     }
 
     const handleDeleteFood = (categoryIndex: number, foodIndex: number): void => {
         let temp: Category[] = [...categories];
         temp[categoryIndex].foods.splice(foodIndex, 1);
         setCategories([...temp]);
-        updateLocalData();
+        updateLocalData("ingredients", categories);
     }
 
     useEffect(() => {
-        retrieveLocalData();
+        setCategories(retrieveLocalData("ingredients"));
     }, [])
-    // useEffect(() => {
-    //     updateLocalData();
-    // }, [categories])
 
     return (
         <div className="w-full mt-24">
@@ -131,7 +131,7 @@ export default function IngredientAccordion({ }: Props) {
                                 temp = { id: categories[categories.length - 1].id + 1, name: 'Category ' + (categories[categories.length - 1].id + 1), foods: ['Food 1', 'Food 2'] }
                             }
                             setCategories([...categories, temp]);
-                            updateLocalData();
+                            updateLocalData("ingredients", categories);
                         }}
                     >
                         Create new Category
@@ -139,7 +139,7 @@ export default function IngredientAccordion({ }: Props) {
                     <button
                         className="text-white px-4 py-2 rounded-md mb-4 mr-3 bg-blue-500"
                         onClick={() => {
-                            updateLocalData();
+                            updateLocalData("ingredients", categories);
                         }}
                     >
                         Save Data
