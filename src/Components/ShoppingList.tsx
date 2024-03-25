@@ -76,11 +76,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { retrieveLocalData, updateLocalData } from '../utils';
+import { ListItem } from '../types';
 
-interface ListItem {
-    name: string;
-    quantity: number;
-}
+// interface ListItem {
+//     name: string;
+//     quantity: number;
+// }
 
 const ShoppingList: React.FC = () => {
     const [list, setList] = useState<ListItem[]>([]);

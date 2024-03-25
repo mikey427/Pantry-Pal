@@ -1,19 +1,36 @@
 import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { retrieveLocalData, updateLocalData } from '../utils';
+import { Category } from '../types';
 
 type Props = {};
 
-interface Category {
-    id: number;
-    name: string;
-    foods: string[];
-    isOpen?: boolean;
-}
+// interface Category {
+//     id: number;
+//     name: string;
+//     foods: string[];
+//     isOpen?: boolean;
+// }
 
 export default function IngredientAccordion({ }: Props) {
     const [categories, setCategories] = useState<Category[]>([
-        { id: 1, name: 'Category 1', foods: ['Food 1', 'Food 2'] },
-        { id: 2, name: 'Category 2', foods: ['Food 3', 'Food 4'] },
+        {
+            id: 1, name: 'Category 1', foods: [{
+                name: 'Food 1',
+                quantity: 1
+            }, {
+                name: 'Food 2',
+                quantity: 2
+            }]
+        },
+        {
+            id: 2, name: 'Category 2', foods: [{
+                name: 'Food 3',
+                quantity: 3
+            }, {
+                name: 'Food 4',
+                quantity: 4
+            }]
+        },
         // Add more categories as needed
     ]);
     const [input, setInput] = useState("");
@@ -51,8 +68,8 @@ export default function IngredientAccordion({ }: Props) {
 
     const handleFoodEdit = (event: any, categoryIndex: number, food: string): void => {
         let temp: Category[] = [...categories]
-        let index: number = categories[categoryIndex].foods.indexOf(food);
-        temp[categoryIndex].foods[index] = input;
+        let index: number = categories[categoryIndex].foods.findIndex(foodItem => foodItem.name === food);
+        temp[categoryIndex].foods[index].name = input;
         setCategories([...temp]);
         setInput("");
         updateLocalData("ingredients", categories);
@@ -73,7 +90,10 @@ export default function IngredientAccordion({ }: Props) {
 
     const handleAddFood = (categoryIndex: number): void => {
         let temp: Category[] = [...categories];
-        temp[categoryIndex].foods.push("New Food"); // Add your default food item here
+        temp[categoryIndex].foods.push({
+            name: 'New Food',
+            quantity: 1
+        }); // Add your default food item here
         setCategories([...temp]);
         updateLocalData("ingredients", categories);
     }
@@ -88,6 +108,20 @@ export default function IngredientAccordion({ }: Props) {
     const handleDeleteFood = (categoryIndex: number, foodIndex: number): void => {
         let temp: Category[] = [...categories];
         temp[categoryIndex].foods.splice(foodIndex, 1);
+        setCategories([...temp]);
+        updateLocalData("ingredients", categories);
+    }
+
+    const handleIncrementQuantity = (categoryIndex: number, foodIndex: number): void => {
+        let temp: Category[] = [...categories];
+        temp[categoryIndex].foods[foodIndex].quantity++;
+        setCategories([...temp]);
+        updateLocalData("ingredients", categories);
+    }
+
+    const handleDecrementQuantity = (categoryIndex: number, foodIndex: number): void => {
+        let temp: Category[] = [...categories];
+        temp[categoryIndex].foods[foodIndex].quantity--;
         setCategories([...temp]);
         updateLocalData("ingredients", categories);
     }
@@ -125,10 +159,26 @@ export default function IngredientAccordion({ }: Props) {
                             console.log(categories[0]);
                             let temp: Category;
                             if (!categories[0]) {
-                                temp = { id: 1, name: 'Category ' + "1", foods: ['Food 1', 'Food 2'] }
+                                temp = {
+                                    id: 1, name: 'Category ' + "1", foods: [{
+                                        name: 'Food 1',
+                                        quantity: 1
+                                    }, {
+                                        name: 'Food 2',
+                                        quantity: 2
+                                    }]
+                                }
 
                             } else {
-                                temp = { id: categories[categories.length - 1].id + 1, name: 'Category ' + (categories[categories.length - 1].id + 1), foods: ['Food 1', 'Food 2'] }
+                                temp = {
+                                    id: categories[categories.length - 1].id + 1, name: 'Category ' + (categories[categories.length - 1].id + 1), foods: [{
+                                        name: 'Food 1',
+                                        quantity: 1
+                                    }, {
+                                        name: 'Food 2',
+                                        quantity: 2
+                                    }]
+                                }
                             }
                             setCategories([...categories, temp]);
                             updateLocalData("ingredients", categories);
@@ -199,21 +249,53 @@ export default function IngredientAccordion({ }: Props) {
                             <div className="px-4 pb-4">
                                 <ul>
                                     {category.foods.map((food, foodIndex) => (
-                                        <li key={food} className="text-gray-600 flex justify-between my-1 align-middle" onClick={(event) => {
+                                        <li key={food.name} className="text-gray-600 flex justify-between my-1 align-middle" onClick={(event) => {
                                             console.log('food', food)
-                                            setInput(food);
-                                            setSelected(food);
-                                        }}><span className='my-auto'>{food}</span>
-                                            {selected === food ? <form><input placeholder='test' value={input} autoFocus onChange={(event) => {
-                                                setInput(event.target.value);
-                                            }}></input>
-                                                <button type="submit" className='w-4 h-4 bg-green-400' onClick={(event) => {
-                                                    handleFoodEdit(event, categoryIndex, food);
-                                                }}></button></form> : <form style={{ display: 'none' }}></form>}
-                                            <button className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold" onClick={(event) => {
-                                                event.stopPropagation();
-                                                handleDeleteFood(categoryIndex, foodIndex);
-                                            }}>
+                                            setInput(food.name);
+                                            setSelected(food.name);
+                                        }}>
+
+                                            <div className=''>
+                                                <span className='my-auto mx-1'>{food.name}: {food.quantity}</span>
+                                                {selected === food.name ? (
+                                                    <form>
+                                                        <input placeholder='test' value={input} autoFocus onChange={(event) => {
+                                                            setInput(event.target.value);
+                                                        }}></input>
+                                                        <button type="submit" className='w-4 h-4 bg-green-400' onClick={(event) => {
+                                                            handleFoodEdit(event, categoryIndex, food.name);
+                                                        }}></button>
+                                                    </form>
+                                                ) : (
+                                                    <form style={{ display: 'none' }}></form>
+                                                )}
+                                                <button
+                                                    className="bg-red-500 text-white px-2 py-1 mx-1 rounded-md text-xs font-bold"
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        handleDecrementQuantity(categoryIndex, foodIndex);
+                                                    }}
+                                                >
+                                                    -
+                                                </button>
+                                                <button
+                                                    className="bg-green-500 text-white px-2 py-1 mx-1 rounded-md text-xs font-bold mr-1"
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        handleIncrementQuantity(categoryIndex, foodIndex);
+                                                    }}
+                                                >
+                                                    +
+                                                </button></div>
+
+
+                                            <button
+                                                className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold"
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    handleDeleteFood(categoryIndex, foodIndex);
+                                                }}
+                                            >
                                                 X
                                             </button>
                                         </li>

@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { retrieveLocalData, updateLocalData } from '../utils';
+import { PlannedMonth, Meal } from '../types';
 
 type Props = {};
 
-interface PlannedMonth {
-    [key: string]: string,
-}
+// interface PlannedMonth {
+//     [key: string]: string,
+// }
 
 export default function Calendar({ }: Props) {
     // State variables
     const [currentMonthIndex, setCurrentMonthIndex] = useState(new Date().getMonth());
     const [selectedDay, setSelectedDay] = useState<string | null>();
     const [input, setInput] = useState("");
+    const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
     const [plannedMeals, setPlannedMeals] = useState<PlannedMonth>({
         // Initialize planned meals for the month with empty strings
         1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '', 8: '', 9: '', 10: '',
         11: '', 12: '', 13: '', 14: '', 15: '', 16: '', 17: '', 18: '', 19: '', 20: '',
         21: '', 22: '', 23: '', 24: '', 25: '', 26: '', 27: '', 28: '', 29: '', 30: '', 31: '',
     })
+    const [savedMeals, setSavedMeals] = useState<Meal[]>([]);
 
     // Function to retrieve planned meals data from local storage
     // const retrieveLocalData = (): void => {
@@ -53,6 +56,7 @@ export default function Calendar({ }: Props) {
         // Update planned meal for the selected day
         let temp: any = plannedMeals;
         temp[Number(day)] = input;
+        // console.log('event', event.target);
 
         // Clear input field and hide the form
         setInput("");
@@ -114,8 +118,11 @@ export default function Calendar({ }: Props) {
 
     // Effect hook to retrieve local data when currentMonthIndex changes
     useEffect(() => {
-        console.log(getMonthName(currentMonthIndex))
+        // console.log(getMonthName(currentMonthIndex))
         setPlannedMeals(retrieveLocalData("calendarData", getMonthName(currentMonthIndex)));
+        setSavedMeals(retrieveLocalData("savedMeals"));
+        // setInput(savedMeals[0]?.name);
+        // console.log
 
     }, [currentMonthIndex]);
 
@@ -148,12 +155,26 @@ export default function Calendar({ }: Props) {
                                 }}>
                                     <p className='m-auto'>{plannedMeals[day]}</p>
                                     {day && <span className="absolute top-0 right-2">{day}</span>}
-                                    {selectedDay === day ? <form><input placeholder='test' value={input} autoFocus onChange={(event) => {
-                                        setInput(event.target.value);
-                                    }}></input>
-                                        <button type="submit" className='w-4 h-4 bg-green-400' onClick={(event) => {
-                                            handleSubmit(event, day);
-                                        }}></button></form> : <form style={{ display: 'none' }}></form>}
+                                    {selectedDay === day ? (
+                                        <form>
+                                            <select value={input} autoFocus onChange={(event) => {
+                                                setInput(event.target.value);
+                                                // console.log(event.target.value);
+                                            }} className="mr-2">
+                                                <option value="" disabled>Select a meal</option> {/* Add a disabled default option */}
+                                                {savedMeals.map((meal) => (
+                                                    <option key={meal.id} value={meal.name} onClick={() => {
+                                                        setInput(meal.name);
+                                                    }}>{meal.name}</option>
+                                                ))}
+                                            </select>
+                                            <button type="submit" className="w-4 h-4 bg-green-400" onClick={(event) => {
+                                                handleSubmit(event, day);
+                                            }}></button>
+                                        </form>
+                                    ) : (
+                                        <form style={{ display: 'none' }}></form>
+                                    )}
                                 </td>
                             ))}
                         </tr>

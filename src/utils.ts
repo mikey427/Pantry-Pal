@@ -16,8 +16,20 @@ const shoppingList = [{
 }]
 
 const ingredients = [
-    { id: 1, name: 'Category 1', foods: ['Food 1', 'Food 2'] },
-    { id: 2, name: 'Category 2', foods: ['Food 3', 'Food 4'] },
+    { id: 1, name: 'Category 1', foods: [{
+        name: 'Food 1',
+        quantity: 1
+    }, {
+        name: 'Food 2',
+        quantity: 2
+    }] },
+    { id: 2, name: 'Category 2', foods: [{
+        name: 'Food 3',
+        quantity: 3
+    }, {
+        name: 'Food 4',
+        quantity: 4
+    }] },
 ]
 
 const savedMeals = [

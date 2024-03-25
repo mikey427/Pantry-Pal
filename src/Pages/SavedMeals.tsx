@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { retrieveLocalData, updateLocalData } from '../utils';
+import { Meal } from '../types';
 
-interface Meal {
-    id: string;
-    name: string;
-    ingredients: string[];
-}
+// interface Meal {
+//     id: string;
+//     name: string;
+//     ingredients: string[];
+// }
 
 const SavedMeals: React.FC = () => {
     const [meals, setMeals] = useState<Meal[]>([
@@ -23,7 +24,7 @@ const SavedMeals: React.FC = () => {
     const [mealNameInput, setMealNameInput] = useState("");
     const [selectedIngredientIndex, setSelectedIngredientIndex] = useState<number | null>(null);
     const [editing, setEditing] = useState(false);
-    const [viewMode, setViewMode] = useState("list"); // list or grid
+    const [viewMode, setViewMode] = useState("grid"); // list or grid
 
 
     useEffect(() => {
