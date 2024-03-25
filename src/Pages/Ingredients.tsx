@@ -8,14 +8,14 @@ interface IngredientsData {
 }
 
 export default function Ingredients({ }: Props) {
-    const [ingredientCategories, setIngredientCategories] = useState<IngredientsData>({
-        "proteins": [],
-        "vegetables": [],
-        "grains and Starches": [],
-        "sauces, condiments and seasonings": [],
-        "dairy": [],
-        "fruits": []
-    });
+    // const [ingredientCategories, setIngredientCategories] = useState<IngredientsData>({
+    //     "proteins": [],
+    //     "vegetables": [],
+    //     "grains and Starches": [],
+    //     "sauces, condiments and seasonings": [],
+    //     "dairy": [],
+    //     "fruits": []
+    // });
 
     return (
         <div className='w-3/4 flex flex-col mx-auto'>

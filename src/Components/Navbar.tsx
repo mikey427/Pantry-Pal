@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
-import Home from './Pages/Home';
-import Calendar from './Components/Calendar';
+import Home from '../Pages/Home';
+import Calendar from './Calendar';
 
 
 type Props = {}
@@ -21,7 +21,7 @@ export default function Navbar({ }: Props) {
             <Link className=' flex items-center m-auto bg bg-green-500 w-48 h-full rounded-2xl hover:bg-green-700 hover:shadow-lg' to="/shopping_list" >
                 <p className='mx-auto'>Shopping List</p>
             </Link>
-            <Link className=' flex items-center m-auto bg bg-blue-500 w-48 h-full rounded-2xl hover:bg-blue-700 hover:shadow-lg' to="/" >
+            <Link className=' flex items-center m-auto bg bg-blue-500 w-48 h-full rounded-2xl hover:bg-blue-700 hover:shadow-lg' to="/saved_meals" >
                 <p className='mx-auto'>Saved Meals</p>
             </Link>
             <Link className=' flex items-center m-auto bg bg-purple-500 w-48 h-full rounded-2xl hover:bg-purple-700 hover:shadow-lg' to="/" >

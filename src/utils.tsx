@@ -1,3 +1,5 @@
+import SavedMeals from "./Pages/SavedMeals";
+
 export { };
 
 // Data Types
@@ -16,6 +18,14 @@ const shoppingList = [{
 const ingredients = [
     { id: 1, name: 'Category 1', foods: ['Food 1', 'Food 2'] },
     { id: 2, name: 'Category 2', foods: ['Food 3', 'Food 4'] },
+]
+
+const savedMeals = [
+    {
+        id: "1",
+        name: "Meal 1",
+        ingredients: ["Chicken", "Ketchup"]
+    }
 ]
 
 
@@ -48,12 +58,22 @@ export const retrieveLocalData = (dataName: string, modifier?: string): any => {
                 localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
             }
             break;
+        case "savedMeals":
+            data = localStorage.getItem(dataName);
+            if (!data) {
+                localStorage.setItem("savedMeals", JSON.stringify(savedMeals));
+            }
+            break;
         default:
             console.log("Error in retrieveLocalData function.");
             break;
     }
     // console.log(data)
     // console.log(JSON.parse(data))
+    // console.log("Retrieved data:", data);
+    if (!data) {
+        return null; // or any other default value
+    }
     return JSON.parse(data);
 }
 
