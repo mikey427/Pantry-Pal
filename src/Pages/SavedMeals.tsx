@@ -201,7 +201,9 @@ const SavedMeals: React.FC = () => {
                                 <button className="bg-red-500 text-white px-4 py-2 rounded" onClick={closeModal}>Cancel</button>
                             </div>
                         </form>
-                        <button onClick={closeModal} className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white px-2 py-1 rounded">X</button>
+                        {/* <button onClick={closeModal} className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white px-2 py-1 rounded">X</button> */}
+                        <svg className="absolute cursor-pointer top-2 right-2 w-8 h-8 bg-red-500 text-white fill-white rounded" onClick={closeModal} xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" /></svg>
+
                     </div>
 
                 </div>

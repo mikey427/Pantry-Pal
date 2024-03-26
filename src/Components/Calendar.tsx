@@ -156,7 +156,7 @@ export default function Calendar({ }: Props) {
                                     <p className='m-auto'>{plannedMeals[day]}</p>
                                     {day && <span className="absolute top-0 right-2">{day}</span>}
                                     {selectedDay === day ? (
-                                        <form>
+                                        <form className='flex justify-center align-center'>
                                             <select value={input} autoFocus onChange={(event) => {
                                                 setInput(event.target.value);
                                                 // console.log(event.target.value);
@@ -168,9 +168,14 @@ export default function Calendar({ }: Props) {
                                                     }}>{meal.name}</option>
                                                 ))}
                                             </select>
-                                            <button type="submit" className="w-4 h-4 bg-green-400" onClick={(event) => {
+                                            {/* <button type="submit" className="w-4 h-4 bg-green-400" onClick={(event) => {
                                                 handleSubmit(event, day);
-                                            }}></button>
+                                            }}></button> */}
+                                            <button type="submit" className='w-6 h-6 bg-green-400' onClick={(event) => {
+                                                handleSubmit(event, day);
+                                            }}>
+                                                <svg className='w-6 h-6 bg-green-400 fill-white' xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M840-680v480q0 33-23.5 56.5T760-120H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h480l160 160Zm-80 34L646-760H200v560h560v-446ZM480-240q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM240-560h360v-160H240v160Zm-40-86v446-560 114Z" /></svg>
+                                            </button>
                                         </form>
                                     ) : (
                                         <form style={{ display: 'none' }}></form>

@@ -121,6 +121,22 @@ const ShoppingList: React.FC = () => {
         updateLocalData("shoppingList", []);
     };
 
+    const handleIncrementQuantity = (index: number): void => {
+        const newList = [...list];
+        newList[index].quantity++;
+        setList(newList);
+        updateLocalData("shoppingList", newList);
+    }
+
+    const handleDecrementQuantity = (index: number): void => {
+        const newList = [...list];
+        if (newList[index].quantity > 1) {
+            newList[index].quantity--;
+            setList(newList);
+            updateLocalData("shoppingList", newList);
+        }
+    }
+
     return (
         <div className='min-h-screen bg-gray-100 flex flex-col items-center'>
             <div className='bg-white shadow-md rounded-md p-8 mt-24'>
@@ -150,7 +166,35 @@ const ShoppingList: React.FC = () => {
                 <ul className='mt-6'>
                     {list.map((item, idx) => (
                         <li key={idx} className='flex justify-between items-center py-2'>
-                            <span>{item.name}: {item.quantity}</span>
+                            <span className='flex'>{item.name}: {item.quantity}
+                                {/* <button
+                                    className="bg-red-500 text-white px-2 py-1 mx-1 rounded-md text-xs font-bold"
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        handleDecrementQuantity(idx);
+                                    }}
+                                >
+                                    -
+                                </button> */}
+                                <svg className="bg-red-500 cursor-pointer fill-white mx-1 rounded-md text-xs font-bold"
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        handleDecrementQuantity(idx);
+                                    }} xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-440v-80h560v80H200Z" /></svg>
+                                {/* <button
+                                    className="bg-green-500 text-white px-2 py-1 mx-1 rounded-md text-xs font-bold mr-1"
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        handleIncrementQuantity(idx);
+                                    }}
+                                >
+                                    +
+                                </button> */}
+                                <svg className="bg-green-500 cursor-pointer text-white fill-white mx-1 rounded-md mr-1" onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleIncrementQuantity(idx);
+                                }} xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" /></svg>
+                            </span>
                             <button onClick={() => removeItem(idx)} className='text-red-500'>Remove</button>
                         </li>
                     ))}
