@@ -10,8 +10,6 @@
 
 // interface List extends Array<ListItem> { }
 
-
-
 // export default function ShoppingList({ }: Props) {
 //     const [list, setList] = useState<List>([]);
 //     const [input, setInput] = useState("");
@@ -36,7 +34,6 @@
 //     useEffect(() => {
 //         setList(retrieveLocalData("shoppingList"))
 //     }, [])
-
 
 //     return (
 //         <div className='flex flex-col'>
@@ -74,9 +71,9 @@
 //     )
 // }
 
-import React, { useState, useEffect } from 'react';
-import { retrieveLocalData, updateLocalData } from '../utils';
-import { ListItem } from '../types';
+import React, { useState, useEffect } from "react";
+import { retrieveLocalData, updateLocalData } from "../utils";
+import { ListItem } from "../types";
 
 // interface ListItem {
 //     name: string;
@@ -84,90 +81,108 @@ import { ListItem } from '../types';
 // }
 
 const ShoppingList: React.FC = () => {
-    const [list, setList] = useState<ListItem[]>([]);
-    const [input, setInput] = useState<string>("");
-    const [quantity, setQuantity] = useState<number>(1);
+	const [list, setList] = useState<ListItem[]>([]);
+	const [input, setInput] = useState<string>("");
+	const [quantity, setQuantity] = useState<number>(1);
 
-    useEffect(() => {
-        const savedList = retrieveLocalData("shoppingList");
-        if (savedList) {
-            setList(savedList);
-        }
-    }, []);
+	useEffect(() => {
+		const savedList = retrieveLocalData("shoppingList");
+		if (savedList) {
+			setList(savedList);
+		}
+	}, []);
 
-    const addListing = (event: React.FormEvent<HTMLFormElement>): void => {
-        event.preventDefault();
-        if (input.trim() !== "") {
-            const newItem: ListItem = {
-                name: input.trim(),
-                quantity: quantity,
-            };
-            setList(prevList => [...prevList, newItem]);
-            setInput("");
-            setQuantity(1);
-            updateLocalData("shoppingList", [...list, newItem]);
-        }
-    };
+	const addListing = (event: React.FormEvent<HTMLFormElement>): void => {
+		event.preventDefault();
+		if (input.trim() !== "") {
+			const newItem: ListItem = {
+				name: input.trim(),
+				quantity: quantity
+			};
+			setList(prevList => [...prevList, newItem]);
+			setInput("");
+			setQuantity(1);
+			updateLocalData("shoppingList", [...list, newItem]);
+		}
+	};
 
-    const removeItem = (index: number): void => {
-        const newList = [...list];
-        newList.splice(index, 1);
-        setList(newList);
-        updateLocalData("shoppingList", newList);
-    };
+	const removeItem = (index: number): void => {
+		const newList = [...list];
+		newList.splice(index, 1);
+		setList(newList);
+		updateLocalData("shoppingList", newList);
+	};
 
-    const clearList = (): void => {
-        setList([]);
-        updateLocalData("shoppingList", []);
-    };
+	const clearList = (): void => {
+		setList([]);
+		updateLocalData("shoppingList", []);
+	};
 
-    const handleIncrementQuantity = (index: number): void => {
-        const newList = [...list];
-        newList[index].quantity++;
-        setList(newList);
-        updateLocalData("shoppingList", newList);
-    }
+	const handleIncrementQuantity = (index: number): void => {
+		const newList = [...list];
+		newList[index].quantity++;
+		setList(newList);
+		updateLocalData("shoppingList", newList);
+	};
 
-    const handleDecrementQuantity = (index: number): void => {
-        const newList = [...list];
-        if (newList[index].quantity > 1) {
-            newList[index].quantity--;
-            setList(newList);
-            updateLocalData("shoppingList", newList);
-        }
-    }
+	const handleDecrementQuantity = (index: number): void => {
+		const newList = [...list];
+		if (newList[index].quantity > 1) {
+			newList[index].quantity--;
+			setList(newList);
+			updateLocalData("shoppingList", newList);
+		}
+	};
 
-    return (
-        <div className='min-h-screen bg-gray-100 flex flex-col items-center'>
-            <div className='bg-white shadow-md rounded-md p-8 mt-24'>
-                <h1 className='text-3xl font-bold mb-6'>Shopping List</h1>
-                <form onSubmit={addListing} className='flex mb-4'>
-                    <input
-                        type='text'
-                        value={input}
-                        className='flex-grow mr-2 border border-gray-300 p-2 rounded'
-                        onChange={(event) => setInput(event.target.value)}
-                        placeholder='Add new item'
-                    />
-                    <select
-                        id='amount'
-                        name='quantity'
-                        value={quantity}
-                        onChange={(event) => setQuantity(Number(event.target.value))}
-                        className='border border-gray-300 p-2 rounded'
-                    >
-                        {[...Array(10)].map((_, index) => (
-                            <option key={index} value={index + 1}>{index + 1}</option>
-                        ))}
-                    </select>
-                    <button type='submit' className='bg-blue-500 text-white px-4 py-2 rounded'>Add</button>
-                </form>
-                <button onClick={clearList} className='bg-red-500 text-white px-4 py-2 rounded'>Clear List</button>
-                <ul className='mt-6'>
-                    {list.map((item, idx) => (
-                        <li key={idx} className='flex justify-between items-center py-2'>
-                            <span className='flex'>{item.name}: {item.quantity}
-                                {/* <button
+	return (
+		<div className="min-h-screen bg-gray-100 flex flex-col items-center">
+			<div className="bg-white shadow-md rounded-md p-8 mt-24">
+				<h1 className="text-3xl font-bold mb-6">Shopping List</h1>
+				<form onSubmit={addListing} className="flex mb-4">
+					<input
+						type="text"
+						value={input}
+						className="flex-grow mr-2 border border-gray-300 p-2 rounded"
+						onChange={event => setInput(event.target.value)}
+						placeholder="Add new item"
+					/>
+					<select
+						id="amount"
+						name="quantity"
+						value={quantity}
+						onChange={event =>
+							setQuantity(Number(event.target.value))
+						}
+						className="border border-gray-300 p-2 rounded"
+					>
+						{[...Array(10)].map((_, index) => (
+							<option key={index} value={index + 1}>
+								{index + 1}
+							</option>
+						))}
+					</select>
+					<button
+						type="submit"
+						className="bg-blue-500 text-white px-4 py-2 rounded"
+					>
+						Add
+					</button>
+				</form>
+				<button
+					onClick={clearList}
+					className="bg-red-500 text-white px-4 py-2 rounded"
+				>
+					Clear List
+				</button>
+				<ul className="mt-6">
+					{list.map((item, idx) => (
+						<li
+							key={idx}
+							className="flex justify-between items-center py-2"
+						>
+							<span className="flex">
+								{item.name}: {item.quantity}
+								{/* <button
                                     className="bg-red-500 text-white px-2 py-1 mx-1 rounded-md text-xs font-bold"
                                     onClick={(event) => {
                                         event.stopPropagation();
@@ -176,12 +191,20 @@ const ShoppingList: React.FC = () => {
                                 >
                                     -
                                 </button> */}
-                                <svg className="bg-red-500 cursor-pointer fill-white mx-1 rounded-md text-xs font-bold"
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        handleDecrementQuantity(idx);
-                                    }} xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-440v-80h560v80H200Z" /></svg>
-                                {/* <button
+								<svg
+									className="bg-red-500 cursor-pointer fill-white mx-1 rounded-md text-xs font-bold"
+									onClick={event => {
+										event.stopPropagation();
+										handleDecrementQuantity(idx);
+									}}
+									xmlns="http://www.w3.org/2000/svg"
+									height="24"
+									viewBox="0 -960 960 960"
+									width="24"
+								>
+									<path d="M200-440v-80h560v80H200Z" />
+								</svg>
+								{/* <button
                                     className="bg-green-500 text-white px-2 py-1 mx-1 rounded-md text-xs font-bold mr-1"
                                     onClick={(event) => {
                                         event.stopPropagation();
@@ -190,18 +213,32 @@ const ShoppingList: React.FC = () => {
                                 >
                                     +
                                 </button> */}
-                                <svg className="bg-green-500 cursor-pointer text-white fill-white mx-1 rounded-md mr-1" onClick={(event) => {
-                                    event.stopPropagation();
-                                    handleIncrementQuantity(idx);
-                                }} xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" /></svg>
-                            </span>
-                            <button onClick={() => removeItem(idx)} className='text-red-500'>Remove</button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </div>
-    );
+								<svg
+									className="bg-green-500 cursor-pointer text-white fill-white mx-1 rounded-md mr-1"
+									onClick={event => {
+										event.stopPropagation();
+										handleIncrementQuantity(idx);
+									}}
+									xmlns="http://www.w3.org/2000/svg"
+									height="24"
+									viewBox="0 -960 960 960"
+									width="24"
+								>
+									<path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+								</svg>
+							</span>
+							<button
+								onClick={() => removeItem(idx)}
+								className="text-red-500"
+							>
+								Remove
+							</button>
+						</li>
+					))}
+				</ul>
+			</div>
+		</div>
+	);
 };
 
 export default ShoppingList;

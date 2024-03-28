@@ -1,12 +1,12 @@
-import React from 'react'
-import Calendar from '../Components/Calendar'
+import React from "react";
+import Calendar from "../Components/Calendar";
 
-type Props = {}
+type Props = {};
 
 export default function MealPlanner({}: Props) {
-  return (
-    <div>
-        <Calendar />
-    </div>
-  )
+	return (
+		<div>
+			<Calendar />
+		</div>
+	);
 }
