@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { PlannedMonth, ListItem } from "../types";
 import { getMonthName } from "../utils";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
 	const [plannedMonth, setPlannedMonth] = useState<PlannedMonth>({});
@@ -28,9 +29,17 @@ export default function Home() {
 		}
 	}, []);
 
+	const navigate = useNavigate();
+
 	return (
 		<div className="flex h-screen w-screen mx-64">
-			<div className="flex flex-col my-36 h-full w-1/3">
+			<div
+				className="flex flex-col my-36 h-full w-1/3"
+				onClick={event => {
+					console.log("clicked");
+					navigate("/meal_planner");
+				}}
+			>
 				<div className="w-1/2 h-1/3 border border-black mx-auto my-6">
 					<ul>
 						{plannedMeals.map((meal: String, idx: number) => {
@@ -45,7 +54,13 @@ export default function Home() {
 					</ul>
 				</div>
 			</div>
-			<div className="flex flex-col my-36 h-full w-1/3">
+			<div
+				className="flex flex-col my-36 h-full w-1/3"
+				onClick={event => {
+					console.log("clicked");
+					navigate("/shopping_list");
+				}}
+			>
 				<div className="w-1/2 h-1/3 border border-black mx-auto my-6">
 					Shopping List
 					<ul>
