@@ -5,37 +5,37 @@ export {};
 // Data Types
 const calendarData = {
 	// Initialize planned meals for the month with empty strings
-	1: "",
-	2: "",
-	3: "",
-	4: "",
-	5: "",
-	6: "",
-	7: "",
-	8: "",
-	9: "",
-	10: "",
-	11: "",
-	12: "",
-	13: "",
-	14: "",
-	15: "",
-	16: "",
-	17: "",
-	18: "",
-	19: "",
-	20: "",
-	21: "",
-	22: "",
-	23: "",
-	24: "",
-	25: "",
-	26: "",
-	27: "",
-	28: "",
-	29: "",
-	30: "",
-	31: ""
+	1: { name: "", checked: false },
+	2: { name: "", checked: false },
+	3: { name: "", checked: false },
+	4: { name: "", checked: false },
+	5: { name: "", checked: false },
+	6: { name: "", checked: false },
+	7: { name: "", checked: false },
+	8: { name: "", checked: false },
+	9: { name: "", checked: false },
+	10: { name: "", checked: false },
+	11: { name: "", checked: false },
+	12: { name: "", checked: false },
+	13: { name: "", checked: false },
+	14: { name: "", checked: false },
+	15: { name: "", checked: false },
+	16: { name: "", checked: false },
+	17: { name: "", checked: false },
+	18: { name: "", checked: false },
+	19: { name: "", checked: false },
+	20: { name: "", checked: false },
+	21: { name: "", checked: false },
+	22: { name: "", checked: false },
+	23: { name: "", checked: false },
+	24: { name: "", checked: false },
+	25: { name: "", checked: false },
+	26: { name: "", checked: false },
+	27: { name: "", checked: false },
+	28: { name: "", checked: false },
+	29: { name: "", checked: false },
+	30: { name: "", checked: false },
+	31: { name: "", checked: false }
 };
 
 const shoppingList = [
@@ -115,9 +115,10 @@ export const retrieveLocalData = (dataName: string, modifier?: string): any => {
 			data = localStorage.getItem(modifier);
 			// console.log(data)
 			if (!data) {
+				console.log(modifier);
 				// console.log("in if")
 				localStorage.setItem(
-					(modifier = dataName),
+					modifier || dataName,
 					JSON.stringify(calendarData)
 				);
 			}
