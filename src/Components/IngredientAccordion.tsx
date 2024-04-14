@@ -17,11 +17,13 @@ export default function IngredientAccordion() {
 			foods: [
 				{
 					name: "Food 1",
-					quantity: 1
+					quantity: 1,
+					category: "Category 1"
 				},
 				{
 					name: "Food 2",
-					quantity: 2
+					quantity: 2,
+					category: "Category 1"
 				}
 			]
 		},
@@ -31,11 +33,13 @@ export default function IngredientAccordion() {
 			foods: [
 				{
 					name: "Food 3",
-					quantity: 3
+					quantity: 3,
+					category: "Category 2"
 				},
 				{
 					name: "Food 4",
-					quantity: 4
+					quantity: 4,
+					category: "Category 2"
 				}
 			]
 		}
@@ -73,15 +77,9 @@ export default function IngredientAccordion() {
 		);
 	};
 
-	const handleFoodEdit = (
-		event: any,
-		categoryIndex: number,
-		food: string
-	): void => {
+	const handleFoodEdit = (event: any, categoryIndex: number, food: string): void => {
 		let temp: Category[] = [...categories];
-		let index: number = categories[categoryIndex].foods.findIndex(
-			foodItem => foodItem.name === food
-		);
+		let index: number = categories[categoryIndex].foods.findIndex(foodItem => foodItem.name === food);
 		temp[categoryIndex].foods[index].name = input;
 		setCategories([...temp]);
 		setInput("");
@@ -92,7 +90,13 @@ export default function IngredientAccordion() {
 		event.preventDefault();
 		event.stopPropagation();
 		let temp: Category[] = [...categories];
-		temp[categoryIndex].name = input;
+		if (temp[categoryIndex].name !== input) {
+			temp[categoryIndex].name = input;
+			temp[categoryIndex].foods = temp[categoryIndex].foods.map(food => {
+				food.category = input;
+				return food;
+			});
+		}
 		let temp1: string = selected;
 		setCategories([...temp]);
 		setInput("");
@@ -104,7 +108,8 @@ export default function IngredientAccordion() {
 		let temp: Category[] = [...categories];
 		temp[categoryIndex].foods.push({
 			name: "New Food",
-			quantity: 1
+			quantity: 1,
+			category: temp[categoryIndex].name
 		}); // Add your default food item here
 		setCategories([...temp]);
 		updateLocalData("ingredients", categories);
@@ -117,30 +122,21 @@ export default function IngredientAccordion() {
 		updateLocalData("ingredients", categories);
 	};
 
-	const handleDeleteFood = (
-		categoryIndex: number,
-		foodIndex: number
-	): void => {
+	const handleDeleteFood = (categoryIndex: number, foodIndex: number): void => {
 		let temp: Category[] = [...categories];
 		temp[categoryIndex].foods.splice(foodIndex, 1);
 		setCategories([...temp]);
 		updateLocalData("ingredients", categories);
 	};
 
-	const handleIncrementQuantity = (
-		categoryIndex: number,
-		foodIndex: number
-	): void => {
+	const handleIncrementQuantity = (categoryIndex: number, foodIndex: number): void => {
 		let temp: Category[] = [...categories];
 		temp[categoryIndex].foods[foodIndex].quantity++;
 		setCategories([...temp]);
 		updateLocalData("ingredients", categories);
 	};
 
-	const handleDecrementQuantity = (
-		categoryIndex: number,
-		foodIndex: number
-	): void => {
+	const handleDecrementQuantity = (categoryIndex: number, foodIndex: number): void => {
 		let temp: Category[] = [...categories];
 		temp[categoryIndex].foods[foodIndex].quantity--;
 		setCategories([...temp]);
@@ -198,31 +194,30 @@ export default function IngredientAccordion() {
 									foods: [
 										{
 											name: "Food 1",
-											quantity: 1
+											quantity: 1,
+											category: "Category 1"
 										},
 										{
 											name: "Food 2",
-											quantity: 2
+											quantity: 2,
+											category: "Category 1"
 										}
 									]
 								};
 							} else {
 								temp = {
-									id:
-										categories[categories.length - 1].id +
-										1,
-									name:
-										"Category " +
-										(categories[categories.length - 1].id +
-											1),
+									id: categories[categories.length - 1].id + 1,
+									name: "Category " + (categories[categories.length - 1].id + 1),
 									foods: [
 										{
 											name: "Food 1",
-											quantity: 1
+											quantity: 1,
+											category: "Category " + (categories[categories.length - 1].id + 1)
 										},
 										{
 											name: "Food 2",
-											quantity: 2
+											quantity: 2,
+											category: "Category " + (categories[categories.length - 1].id + 1)
 										}
 									]
 								};
@@ -242,11 +237,14 @@ export default function IngredientAccordion() {
                         Save Data
                     </button> */}
 					<svg
-						className="text-white fill-white bg-blue-500 rounded-md w-10 h-10"
+						className="text-white fill-white bg-blue-500 cursor-pointer rounded-md w-10 h-10"
 						xmlns="http://www.w3.org/2000/svg"
 						height="24"
 						viewBox="0 -960 960 960"
 						width="24"
+						onClick={() => {
+							updateLocalData("ingredients", categories);
+						}}
 					>
 						<path d="M840-680v480q0 33-23.5 56.5T760-120H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h480l160 160Zm-80 34L646-760H200v560h560v-446ZM480-240q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM240-560h360v-160H240v160Zm-40-86v446-560 114Z" />
 					</svg>
@@ -254,10 +252,7 @@ export default function IngredientAccordion() {
 			</div>
 
 			{categories.map((category, categoryIndex) => (
-				<div
-					key={category.id}
-					className="border border-gray-200 rounded-md mb-4"
-				>
+				<div key={category.id} className="border border-gray-200 rounded-md mb-4">
 					<div
 						className="flex items-center justify-between bg-gray-100 text-gray-700 px-4 py-2 w-full"
 						onClick={() => toggleAccordion(category.id)}
@@ -285,10 +280,7 @@ export default function IngredientAccordion() {
 											type="submit"
 											className="w-4 h-4 bg-green-400"
 											onClick={event => {
-												handleCategoryEdit(
-													event,
-													categoryIndex
-												);
+												handleCategoryEdit(event, categoryIndex);
 											}}
 										></button>
 									</form>
@@ -338,15 +330,7 @@ export default function IngredientAccordion() {
 							>
 								<path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
 							</svg>
-							<svg
-								className={`w-4 h-4 ${
-									category.isOpen
-										? "transform rotate-180"
-										: ""
-								}`}
-								viewBox="0 0 20 20"
-								fill="currentColor"
-							>
+							<svg className={`w-4 h-4 ${category.isOpen ? "transform rotate-180" : ""}`} viewBox="0 0 20 20" fill="currentColor">
 								<path
 									fillRule="evenodd"
 									clipRule="evenodd"
@@ -379,21 +363,14 @@ export default function IngredientAccordion() {
 														value={input}
 														autoFocus
 														onChange={event => {
-															setInput(
-																event.target
-																	.value
-															);
+															setInput(event.target.value);
 														}}
 													></input>
 													<button
 														type="submit"
 														className="w-6 h-6 bg-green-400"
 														onClick={event => {
-															handleFoodEdit(
-																event,
-																categoryIndex,
-																food.name
-															);
+															handleFoodEdit(event, categoryIndex, food.name);
 														}}
 													>
 														<svg
@@ -408,9 +385,7 @@ export default function IngredientAccordion() {
 													</button>
 												</form>
 											) : (
-												<form
-													style={{ display: "none" }}
-												></form>
+												<form style={{ display: "none" }}></form>
 											)}
 											{/* <button
                                                     className="bg-red-500 text-white px-2 py-1 mx-1 rounded-md text-xs font-bold"
@@ -425,10 +400,7 @@ export default function IngredientAccordion() {
 												className="bg-red-500 cursor-pointer text-white fill-white mx-2 rounded-md mr-1"
 												onClick={event => {
 													event.stopPropagation();
-													handleDecrementQuantity(
-														categoryIndex,
-														foodIndex
-													);
+													handleDecrementQuantity(categoryIndex, foodIndex);
 												}}
 												xmlns="http://www.w3.org/2000/svg"
 												height="24"
@@ -450,10 +422,7 @@ export default function IngredientAccordion() {
 												className="bg-green-500 cursor-pointer text-white fill-white mx-2 rounded-md mr-1"
 												onClick={event => {
 													event.stopPropagation();
-													handleIncrementQuantity(
-														categoryIndex,
-														foodIndex
-													);
+													handleIncrementQuantity(categoryIndex, foodIndex);
 												}}
 												xmlns="http://www.w3.org/2000/svg"
 												height="24"
@@ -477,10 +446,7 @@ export default function IngredientAccordion() {
 											className="bg-red-500 cursor-pointer text-white fill-white rounded-md my-auto text-xs w-6 h-6 font-bold"
 											onClick={event => {
 												event.stopPropagation();
-												handleDeleteFood(
-													categoryIndex,
-													foodIndex
-												);
+												handleDeleteFood(categoryIndex, foodIndex);
 											}}
 											xmlns="http://www.w3.org/2000/svg"
 											height="24"

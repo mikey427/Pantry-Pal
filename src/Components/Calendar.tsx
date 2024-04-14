@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { retrieveLocalData, updateLocalData } from "../utils";
 import { PlannedMonth, Meal, Category } from "../types";
 import { getMonthName } from "../utils";
+import { useTheme } from "../Components/ThemeProvider";
 
 type Props = {};
 
@@ -47,6 +48,8 @@ export default function Calendar({}: Props) {
 	});
 	const [savedMeals, setSavedMeals] = useState<Meal[]>([]);
 	const [ingredients, setIngredients] = useState<Category[]>([]);
+	const [loading, setLoading] = useState(true);
+	const { theme, toggleTheme } = useTheme();
 
 	// Function to handle day selection
 	const selectDay = (event: any, day: string): void => {
@@ -111,15 +114,71 @@ export default function Calendar({}: Props) {
 		setCurrentMonthIndex(prevIndex => (prevIndex === 11 ? 0 : prevIndex + 1));
 	};
 
+	const ingredients12 = [
+		{
+			id: 1,
+			name: "Category 1",
+			foods: [
+				{
+					name: "Food 1",
+					quantity: 1,
+					catefor: "Category 1"
+				},
+				{
+					name: "Food 2",
+					quantity: 2,
+					category: "Category 1"
+				}
+			]
+		}
+	];
+
 	const handleCheck = (event: any, day: string, meal: string) => {
 		event.stopPropagation();
 		// Create a new object with the current state
-		let temp: any = { ...plannedMeals };
+		let tempPlannedMeals: any = { ...plannedMeals };
 		// Update the checked property of the specific day
-		temp[day].checked = !temp[day].checked;
+		tempPlannedMeals[day].checked = !tempPlannedMeals[day].checked;
+		if (tempPlannedMeals[day].checked) {
+			// Get the ingredients for the selected meal
+			const mealIngredients = savedMeals.find(savedMeal => savedMeal.name === meal)?.ingredients;
+			// Loop through the ingredients and update the quantities
+			mealIngredients?.forEach(ingredient => {
+				const ingredientCategory = ingredients.find(category => category.foods.find(food => food.name === ingredient)?.name === ingredient);
+				const foodItem = ingredientCategory?.foods.find(food => food.name === ingredient);
+				if (foodItem?.quantity) {
+					foodItem.quantity -= 1;
+					if (foodItem.quantity <= 0) {
+						// Remove the ingredient if the quantity is zero
+						ingredientCategory!.foods = ingredientCategory!.foods.filter(food => food.name !== ingredient);
+					}
+				}
+			});
+		} else {
+			// Do the inverse of the above, i.e. add the ingredients back
+			const mealIngredients = savedMeals.find(savedMeal => savedMeal.name === meal)?.ingredients;
+			mealIngredients?.forEach(ingredient => {
+				const ingredientCategory = ingredients.find(category => category.foods.find(food => food.name === ingredient)?.name === ingredient);
+				const foodItem = ingredientCategory?.foods.find(food => food.name === ingredient);
+				console.log("foodItem", foodItem);
+				if (foodItem) {
+					foodItem.quantity += 1;
+				} else {
+					ingredientCategory?.foods.push({
+						name: ingredient,
+						quantity: 1,
+						category: ingredientCategory.name
+					});
+				}
+			}); // LEFT OFF HERE, NEED TO ADD THE INGREDIENTS IF THEY DONT EXIST AND DETERMINE WHAT CATEGORY THEY SHOULD GO UNDER (?)
+		}
 		// Update the state with the new object
-		setPlannedMeals(temp);
-		updateLocalData(getMonthName(currentMonthIndex), temp);
+		setPlannedMeals(tempPlannedMeals);
+		// Update local storage with the new ingredient data
+		console.log("ingredients", ingredients);
+		updateLocalData("ingredients", ingredients);
+
+		updateLocalData(getMonthName(currentMonthIndex), tempPlannedMeals);
 	};
 
 	// Get current year, day, and month
@@ -133,129 +192,152 @@ export default function Calendar({}: Props) {
 		setPlannedMeals(retrieveLocalData("calendarData", getMonthName(currentMonthIndex)));
 		setSavedMeals(retrieveLocalData("savedMeals"));
 		setIngredients(retrieveLocalData("ingredients"));
+		setTimeout(() => setLoading(false), 500);
+		// setLoading(false);
 		console.log(retrieveLocalData("ingredients"));
+		console.log(theme);
 		// setInput(savedMeals[0]?.name);
 		// console.log
-	}, [currentMonthIndex]);
+	}, [currentMonthIndex, theme]);
 
 	// Render the calendar component
-	return (
-		<div className="p-4">
-			<div className="flex justify-between mb-4">
-				<button className="px-4 py-2 bg-gray-200 rounded-md" onClick={handlePrevMonth}>
-					Previous Month
-				</button>
-				<h2 className="text-xl font-bold">{getMonthName(currentMonthIndex)}</h2>
-				<button className="px-4 py-2 bg-gray-200 rounded-md" onClick={handleNextMonth}>
-					Next Month
-				</button>
-			</div>
-			<table className="table-fixed w-full border-collapse">
-				<thead>
-					<tr className="bg-gray-200">
-						<th className="w-1/7 p-2 border border-gray-400">Sun</th>
-						<th className="w-1/7 p-2 border border-gray-400">Mon</th>
-						<th className="w-1/7 p-2 border border-gray-400">Tue</th>
-						<th className="w-1/7 p-2 border border-gray-400">Wed</th>
-						<th className="w-1/7 p-2 border border-gray-400">Thu</th>
-						<th className="w-1/7 p-2 border border-gray-400">Fri</th>
-						<th className="w-1/7 p-2 border border-gray-400">Sat</th>
-					</tr>
-				</thead>
-				<tbody>
-					{getDaysForMonth(currentYear, currentMonthIndex).map((week, weekIndex) => (
-						<tr key={weekIndex}>
-							{week.map((day, dayIndex) => (
-								<td
-									key={dayIndex}
-									className={`relative h-36 p-2 border border-gray-400 ${day ? "" : "bg-gray-200"} ${
-										parseInt(day) === currentDay && currentMonthIndex === currentMonth ? "border-2 border-pink-600" : ""
-									} ${selectedDay === day ? "bg-blue-200" : ""}`}
-									// onClick={event => {
-									// 	event.stopPropagation();
-									// 	selectDay(event, day);
-									// }}
-									onClick={e => e.currentTarget === e.target && selectDay(e, day)}
-								>
-									<p className="m-auto">{plannedMeals[day]?.name}</p>
-									{day && (
-										<div className="">
-											<input
-												type="checkbox"
-												id="cooked"
-												name="cooked"
-												className="absolute top-1 left-2"
-												checked={!!plannedMeals[day]?.checked}
-												onChange={event => {
-													event.stopPropagation();
-													handleCheck(event, day, String(plannedMeals[day]?.name));
-												}}
-												// onChange={e => e.currentTarget === e.target && handleCheck(e, day, String(plannedMeals[day]?.name))}
-											/>
-											<span className="flex absolute top-0 right-2">
-												<div className="mr-2"></div>
-
-												{day}
-											</span>
-										</div>
-									)}
-									{selectedDay === day ? (
-										<form className="flex justify-center align-center">
-											<select
-												value={input}
-												autoFocus
-												onChange={event => {
-													setInput(event.target.value);
-													// console.log(event.target.value);
-												}}
-												className="mr-2"
-											>
-												<option value="" disabled>
-													Select a meal
-												</option>{" "}
-												{/* Add a disabled default option */}
-												{savedMeals.map(meal => (
-													<option
-														key={meal.id}
-														value={meal.name}
-														onClick={() => {
-															setInput(meal.name);
-														}}
-													>
-														{meal.name}
-													</option>
-												))}
-											</select>
-											{/* <button type="submit" className="w-4 h-4 bg-green-400" onClick={(event) => {
-                                                handleSubmit(event, day);
-                                            }}></button> */}
-											<button
-												type="submit"
-												className="w-6 h-6 bg-green-400"
-												onClick={event => {
-													handleSubmit(event, day);
-												}}
-											>
-												<svg
-													className="w-6 h-6 bg-green-400 fill-white"
-													xmlns="http://www.w3.org/2000/svg"
-													height="24"
-													viewBox="0 -960 960 960"
-													width="24"
-												>
-													<path d="M840-680v480q0 33-23.5 56.5T760-120H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h480l160 160Zm-80 34L646-760H200v560h560v-446ZM480-240q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM240-560h360v-160H240v160Zm-40-86v446-560 114Z" />
-												</svg>
-											</button>
-										</form>
-									) : (
-										<form style={{ display: "none" }}></form>
-									)}
-								</td>
-							))}
+	return loading ? (
+		<div className="flex justify-center align-center h-screen">
+			<span className="loading loading-spinner loading-lg"></span>
+		</div>
+	) : (
+		<div className="p-4 bg-base-100">
+			<div>
+				<div className="flex justify-between mb-4">
+					{/* <button className="px-4 py-2 bg-gray-200 rounded-md" onClick={handlePrevMonth}>
+						Previous Month
+					</button> */}
+					<button className="btn btn-info" onClick={handlePrevMonth}>
+						Previous Month
+					</button>
+					<h2 className="text-xl font-bold">{getMonthName(currentMonthIndex)}</h2>
+					{/* <button className="px-4 py-2 bg-gray-200 rounded-md" onClick={handleNextMonth}>
+						Next Month
+					</button> */}
+					<button className="btn btn-info" onClick={handleNextMonth}>
+						Next Month
+					</button>
+				</div>
+				<table className="table-fixed w-full border-collapse">
+					<thead>
+						<tr className="bg-gray-200">
+							<th className="w-1/7 p-2 border border-gray-400">Sun</th>
+							<th className="w-1/7 p-2 border border-gray-400">Mon</th>
+							<th className="w-1/7 p-2 border border-gray-400">Tue</th>
+							<th className="w-1/7 p-2 border border-gray-400">Wed</th>
+							<th className="w-1/7 p-2 border border-gray-400">Thu</th>
+							<th className="w-1/7 p-2 border border-gray-400">Fri</th>
+							<th className="w-1/7 p-2 border border-gray-400">Sat</th>
 						</tr>
-					))}
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						{getDaysForMonth(currentYear, currentMonthIndex).map((week, weekIndex) => (
+							<tr key={weekIndex}>
+								{week.map((day, dayIndex) => (
+									<td
+										key={dayIndex}
+										className={`relative h-36 p-2 border border-gray-400 ${day ? "" : "bg-gray-200"} ${
+											parseInt(day) === currentDay && currentMonthIndex === currentMonth ? "border-2 border-pink-600" : ""
+										} ${selectedDay === day ? "bg-blue-200" : ""}`}
+										// onClick={event => {
+										// 	event.stopPropagation();
+										// 	selectDay(event, day);
+										// }}
+										onClick={e => e.currentTarget === e.target && selectDay(e, day)}
+									>
+										<p className="m-auto">{plannedMeals[day]?.name}</p>
+										{day && (
+											<div className="">
+												<input
+													type="checkbox"
+													id="cooked"
+													name="cooked"
+													className="absolute top-1 left-2"
+													checked={!!plannedMeals[day]?.checked}
+													onChange={event => {
+														event.stopPropagation();
+														handleCheck(event, day, String(plannedMeals[day]?.name));
+													}}
+													// onChange={e => e.currentTarget === e.target && handleCheck(e, day, String(plannedMeals[day]?.name))}
+												/>
+												<span className="flex absolute top-0 right-2">
+													<div className="mr-2"></div>
+
+													{day}
+												</span>
+											</div>
+										)}
+										{selectedDay === day ? (
+											<form className="flex">
+												<select
+													className="select select-bordered select-xs w-4/5 max-w-xs"
+													value={input}
+													autoFocus
+													onChange={event => {
+														setInput(event.target.value);
+														// console.log(event.target.value);
+													}}
+												>
+													<option disabled selected>
+														Select a meal
+													</option>
+													{savedMeals.map(meal => (
+														<option
+															key={meal.id}
+															value={meal.name}
+															onClick={() => {
+																setInput(meal.name);
+															}}
+														>
+															{meal.name}
+														</option>
+													))}
+												</select>
+												{/* <button type="submit" className="w-4 h-4 bg-green-400" onClick={(event) => {
+								handleSubmit(event, day);
+							}}></button> */}
+												<button
+													type="submit"
+													className="btn btn-xs ml-2 bg-green-400 border-black"
+													onClick={event => {
+														handleSubmit(event, day);
+													}}
+												>
+													Save
+												</button>
+												{/* <button
+													type="submit"
+													className="w-6 h-6 bg-green-400"
+													onClick={event => {
+														handleSubmit(event, day);
+													}}
+												>
+													<svg
+														className="w-6 h-6 bg-green-400 fill-white"
+														xmlns="http://www.w3.org/2000/svg"
+														height="24"
+														viewBox="0 -960 960 960"
+														width="24"
+													>
+														<path d="M840-680v480q0 33-23.5 56.5T760-120H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h480l160 160Zm-80 34L646-760H200v560h560v-446ZM480-240q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM240-560h360v-160H240v160Zm-40-86v446-560 114Z" />
+													</svg>
+												</button> */}
+											</form>
+										) : (
+											<form style={{ display: "none" }}></form>
+										)}
+									</td>
+								))}
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	);
 }

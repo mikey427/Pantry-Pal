@@ -14,15 +14,15 @@ export interface Category {
 	isOpen?: boolean;
 }
 
-export interface Food {
-	name: string;
-	quantity: number;
-}
 // export interface Food {
 // 	name: string;
 // 	quantity: number;
-// 	category: string;
 // }
+export interface Food {
+	name: string;
+	quantity: number;
+	category: string;
+}
 
 export interface ListItem {
 	name: string;

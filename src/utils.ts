@@ -52,11 +52,13 @@ const ingredients = [
 		foods: [
 			{
 				name: "Food 1",
-				quantity: 1
+				quantity: 1,
+				catefor: "Category 1"
 			},
 			{
 				name: "Food 2",
-				quantity: 2
+				quantity: 2,
+				category: "Category 1"
 			}
 		]
 	},
@@ -66,11 +68,13 @@ const ingredients = [
 		foods: [
 			{
 				name: "Food 3",
-				quantity: 3
+				quantity: 3,
+				category: "Category 2"
 			},
 			{
 				name: "Food 4",
-				quantity: 4
+				quantity: 4,
+				category: "Category 2"
 			}
 		]
 	}
@@ -85,20 +89,7 @@ const savedMeals = [
 ];
 
 export const getMonthName = (index: number) => {
-	const monthNames = [
-		"January",
-		"February",
-		"March",
-		"April",
-		"May",
-		"June",
-		"July",
-		"August",
-		"September",
-		"October",
-		"November",
-		"December"
-	];
+	const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 	return monthNames[index];
 };
 
@@ -117,28 +108,19 @@ export const retrieveLocalData = (dataName: string, modifier?: string): any => {
 			if (!data) {
 				console.log(modifier);
 				// console.log("in if")
-				localStorage.setItem(
-					modifier || dataName,
-					JSON.stringify(calendarData)
-				);
+				localStorage.setItem(modifier || dataName, JSON.stringify(calendarData));
 			}
 			break;
 		case "ingredients":
 			data = localStorage.getItem(dataName);
 			if (!data) {
-				localStorage.setItem(
-					"ingredients",
-					JSON.stringify(ingredients)
-				);
+				localStorage.setItem("ingredients", JSON.stringify(ingredients));
 			}
 			break;
 		case "shoppingList":
 			data = localStorage.getItem(dataName);
 			if (!data) {
-				localStorage.setItem(
-					"shoppingList",
-					JSON.stringify(shoppingList)
-				);
+				localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
 			}
 			break;
 		case "savedMeals":
@@ -163,3 +145,17 @@ export const retrieveLocalData = (dataName: string, modifier?: string): any => {
 export const updateLocalData = (dataName: string, data: any): void => {
 	localStorage.setItem(dataName, JSON.stringify(data));
 };
+
+//     "proteins": [],
+//     "vegetables": [],
+//     "grains": [],
+//     "sauces, condiments and seasonings": [],
+//     "dairy": [],
+//     "fruits": []
+
+// export const ingredientsData = [
+// 	{
+// 		Name: "Chicken",
+// 		Category: "Meat"
+// 	}
+// ];
