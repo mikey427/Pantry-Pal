@@ -2,11 +2,11 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Home from "./Pages/Home";
 import MealPlanner from "./Pages/MealPlanner";
-import Navbar from "./Components/Navbar";
+import Navbar from "./components/Navbar";
 import Ingredients from "./Pages/Ingredients";
 import ShoppingList from "./Pages/ShoppingListPage";
 import SavedMeals from "./Pages/SavedMeals";
-import { ThemeProvider } from "./Components/ThemeProvider";
+import { ThemeProvider } from "./components/ThemeProvider";
 
 function App() {
 	return (

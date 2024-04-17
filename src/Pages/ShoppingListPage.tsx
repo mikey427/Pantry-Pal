@@ -1,5 +1,5 @@
 import React from "react";
-import ShoppingList from "../Components/ShoppingList";
+import ShoppingList from "../components/ShoppingList";
 
 type Props = {};
 

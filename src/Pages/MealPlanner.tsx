@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Calendar from "../Components/Calendar";
+import Calendar from "../components/Calendar";
 
 type Props = {};
 

@@ -139,14 +139,21 @@ const ShoppingList: React.FC = () => {
 			<div className="bg-white shadow-md rounded-md p-8 mt-24">
 				<h1 className="text-3xl font-bold mb-6">Shopping List</h1>
 				<form onSubmit={addListing} className="flex mb-4">
-					<input
+					{/* <input
 						type="text"
 						value={input}
 						className="flex-grow mr-2 border border-gray-300 p-2 rounded"
 						onChange={event => setInput(event.target.value)}
 						placeholder="Add new item"
+					/> */}
+					<input
+						type="text"
+						value={input}
+						placeholder="Add new item"
+						className="input input-bordered w-full max-w-xs mr-2"
+						onChange={event => setInput(event.target.value)}
 					/>
-					<select
+					{/* <select
 						id="amount"
 						name="quantity"
 						value={quantity}
@@ -160,28 +167,32 @@ const ShoppingList: React.FC = () => {
 								{index + 1}
 							</option>
 						))}
-					</select>
-					<button
-						type="submit"
-						className="bg-blue-500 text-white px-4 py-2 rounded"
+					</select> */}
+					<select
+						className="select select-bordered w-full max-w-xs mr-2"
+						value={quantity}
+						onChange={event => setQuantity(Number(event.target.value))}
 					>
+						<option disabled selected>
+							Quantity
+						</option>
+						{[...Array(10)].map((_, index) => (
+							<option key={index} value={index + 1}>
+								{index + 1}
+							</option>
+						))}
+					</select>
+					<button type="submit" className=" btn bg-blue-500 text-white">
 						Add
 					</button>
 				</form>
-				<button
-					onClick={clearList}
-					className="bg-red-500 text-white px-4 py-2 rounded"
-				>
+				<button onClick={clearList} className="btn bg-red-500 text-white">
 					Clear List
 				</button>
 				<ul className="mt-6">
 					{list.map((item, idx) => (
-						<li
-							key={idx}
-							className="flex justify-between items-center py-2"
-						>
+						<li key={idx} className="flex justify-between items-center py-2">
 							<span className="flex">
-								{item.name}: {item.quantity}
 								{/* <button
                                     className="bg-red-500 text-white px-2 py-1 mx-1 rounded-md text-xs font-bold"
                                     onClick={(event) => {
@@ -226,11 +237,11 @@ const ShoppingList: React.FC = () => {
 								>
 									<path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
 								</svg>
+								<span className=" ml-4 w-28">
+									{item.name}: {item.quantity}
+								</span>
 							</span>
-							<button
-								onClick={() => removeItem(idx)}
-								className="text-red-500"
-							>
+							<button onClick={() => removeItem(idx)} className="text-red-500">
 								Remove
 							</button>
 						</li>

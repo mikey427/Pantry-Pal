@@ -151,8 +151,21 @@ export default function IngredientAccordion() {
 		<div className="w-full mt-24">
 			<div className="flex justify-between">
 				<div className="flex">
-					<button
+					{/* <button
 						className="bg-blue-500 text-white px-4 py-2 rounded-md mb-4 mr-3"
+						onClick={() => {
+							setCategories(
+								categories.map(category => ({
+									...category,
+									isOpen: true
+								}))
+							);
+						}}
+					>
+						Expand All
+					</button> */}
+					<button
+						className="btn bg-blue-500 text-white px-4 py-2 rounded-md mb-4 mr-3"
 						onClick={() => {
 							setCategories(
 								categories.map(category => ({
@@ -165,7 +178,7 @@ export default function IngredientAccordion() {
 						Expand All
 					</button>
 					<button
-						className="bg-red-500 text-white px-4 py-2 rounded-md mb-4 mr-3"
+						className="btn bg-red-500 text-white px-4 py-2 rounded-md mb-4 mr-3"
 						onClick={() => {
 							setCategories(
 								categories.map(category => ({
@@ -183,7 +196,7 @@ export default function IngredientAccordion() {
 				</div>
 				<div className="flex">
 					<button
-						className="bg-green-500 text-white px-4 py-2 rounded-md mb-4 mr-3"
+						className="btn bg-green-500 text-white px-4 py-2 mb-4 mr-3"
 						onClick={() => {
 							console.log(categories[0]);
 							let temp: Category;
@@ -237,7 +250,7 @@ export default function IngredientAccordion() {
                         Save Data
                     </button> */}
 					<svg
-						className="text-white fill-white bg-blue-500 cursor-pointer rounded-md w-10 h-10"
+						className="text-white fill-white bg-blue-500 cursor-pointer rounded-md w-12 h-12"
 						xmlns="http://www.w3.org/2000/svg"
 						height="24"
 						viewBox="0 -960 960 960"

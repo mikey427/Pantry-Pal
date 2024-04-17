@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { retrieveLocalData, updateLocalData } from "../utils";
 import { PlannedMonth, Meal, Category } from "../types";
 import { getMonthName } from "../utils";
-import { useTheme } from "../Components/ThemeProvider";
+import { useTheme } from "../components/ThemeProvider";
 
 type Props = {};
 
@@ -206,7 +206,7 @@ export default function Calendar({}: Props) {
 			<span className="loading loading-spinner loading-lg"></span>
 		</div>
 	) : (
-		<div className="p-4 bg-base-100">
+		<div className="p-4">
 			<div>
 				<div className="flex justify-between mb-4">
 					{/* <button className="px-4 py-2 bg-gray-200 rounded-md" onClick={handlePrevMonth}>
@@ -244,16 +244,25 @@ export default function Calendar({}: Props) {
 										className={`relative h-36 p-2 border border-gray-400 ${day ? "" : "bg-gray-200"} ${
 											parseInt(day) === currentDay && currentMonthIndex === currentMonth ? "border-2 border-pink-600" : ""
 										} ${selectedDay === day ? "bg-blue-200" : ""}`}
-										// onClick={event => {
-										// 	event.stopPropagation();
-										// 	selectDay(event, day);
-										// }}
-										onClick={e => e.currentTarget === e.target && selectDay(e, day)}
+										onClick={e => {
+											console.log(selectedDay, day);
+											if (selectedDay !== day) {
+												console.log("clicked on a different day");
+												selectDay(e, day);
+											} else {
+												//if the drop down is clicked, do not deselect the day
+												if ((e.target as HTMLElement).tagName === "SELECT") {
+													return;
+												}
+												console.log("clicked on the same day");
+												setSelectedDay(null);
+											}
+										}}
 									>
 										<p className="m-auto">{plannedMeals[day]?.name}</p>
 										{day && (
 											<div className="">
-												<input
+												{/* <input
 													type="checkbox"
 													id="cooked"
 													name="cooked"
@@ -264,6 +273,17 @@ export default function Calendar({}: Props) {
 														handleCheck(event, day, String(plannedMeals[day]?.name));
 													}}
 													// onChange={e => e.currentTarget === e.target && handleCheck(e, day, String(plannedMeals[day]?.name))}
+												/> */}
+												<input
+													type="checkbox"
+													id="cooked"
+													name="cooked"
+													className="checkbox checkbox-sm absolute top-1 left-2"
+													checked={!!plannedMeals[day]?.checked}
+													onChange={event => {
+														event.stopPropagation();
+														handleCheck(event, day, String(plannedMeals[day]?.name));
+													}}
 												/>
 												<span className="flex absolute top-0 right-2">
 													<div className="mr-2"></div>
@@ -276,14 +296,15 @@ export default function Calendar({}: Props) {
 											<form className="flex">
 												<select
 													className="select select-bordered select-xs w-4/5 max-w-xs"
-													value={input}
+													// value={input}
 													autoFocus
 													onChange={event => {
 														setInput(event.target.value);
 														// console.log(event.target.value);
 													}}
+													defaultValue="Select a meal"
 												>
-													<option disabled selected>
+													<option value="Select a meal" disabled>
 														Select a meal
 													</option>
 													{savedMeals.map(meal => (

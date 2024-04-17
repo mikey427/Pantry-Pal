@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Home from "../Pages/Home";
-import Calendar from "./Calendar";
 import { useTheme } from "./ThemeProvider";
 
 type Props = {};
@@ -69,7 +68,7 @@ export default function Navbar({}: Props) {
 		//         <p className='mx-auto'>About</p>
 		//     </Link> */}
 		// </div>
-		<div className="navbar" data-theme="dark">
+		<div className="navbar">
 			<div className="navbar-start">
 				<div className="dropdown">
 					<div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -78,12 +77,7 @@ export default function Navbar({}: Props) {
 						</svg>
 					</div>
 					<ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow rounded-box w-52">
-						<li>
-							<Link className="" to="/">
-								<p className="mx-auto">Home</p>
-							</Link>
-						</li>
-						<li>
+						<li className="">
 							<Link className="" to="/">
 								<p className="mx-auto">Home</p>
 							</Link>
