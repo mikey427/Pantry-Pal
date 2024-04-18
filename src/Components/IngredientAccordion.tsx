@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { retrieveLocalData, updateLocalData } from "../utils";
 import { Category } from "../types";
+import { DndContext } from "@dnd-kit/core";
+import { Draggable } from "./Draggable";
+import { Droppable } from "./Droppable";
 
 // interface Category {
 //     id: number;
