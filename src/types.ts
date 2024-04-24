@@ -19,6 +19,7 @@ export interface Category {
 // 	quantity: number;
 // }
 export interface Food {
+	id: number;
 	name: string;
 	quantity: number;
 	category: string;

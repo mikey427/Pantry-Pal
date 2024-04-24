@@ -47,15 +47,17 @@ const shoppingList = [
 
 const ingredients = [
 	{
-		id: 1,
+		id: 0,
 		name: "Category 1",
 		foods: [
 			{
+				id: 0,
 				name: "Food 1",
 				quantity: 1,
-				catefor: "Category 1"
+				category: "Category 1"
 			},
 			{
+				id: 1,
 				name: "Food 2",
 				quantity: 2,
 				category: "Category 1"
@@ -63,15 +65,17 @@ const ingredients = [
 		]
 	},
 	{
-		id: 2,
+		id: 1,
 		name: "Category 2",
 		foods: [
 			{
+				id: 0,
 				name: "Food 3",
 				quantity: 3,
 				category: "Category 2"
 			},
 			{
+				id: 1,
 				name: "Food 4",
 				quantity: 4,
 				category: "Category 2"

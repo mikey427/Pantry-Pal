@@ -165,6 +165,7 @@ export default function Calendar({}: Props) {
 					foodItem.quantity += 1;
 				} else {
 					ingredientCategory?.foods.push({
+						id: ingredientCategory.foods.length + 1,
 						name: ingredient,
 						quantity: 1,
 						category: ingredientCategory.name

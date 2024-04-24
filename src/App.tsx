@@ -11,7 +11,7 @@ import { ThemeProvider } from "./components/ThemeProvider";
 function App() {
 	return (
 		<ThemeProvider>
-			<div className="App" data-theme="light">
+			<div className="App">
 				<Navbar />
 				<Routes>
 					<Route path="/" element={<Home />} />
