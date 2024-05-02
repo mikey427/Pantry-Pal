@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { retrieveLocalData, updateLocalData } from "../utils";
 import { Category, Food } from "../types";
 import { DndContext } from "@dnd-kit/core";
-import { useDroppable } from "@dnd-kit/core";
-import { useDraggable } from "@dnd-kit/core";
+import { useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 import Draggable from "./Draggable";
 import Droppable from "./Droppable";
 
@@ -91,6 +90,14 @@ export default function IngredientAccordion() {
 		);
 	};
 
+	const sensors = useSensors(
+		useSensor(PointerSensor, {
+			activationConstraint: {
+				distance: 8
+			}
+		})
+	);
+
 	interface UseDroppableArguments {
 		id: string | number;
 		disabled?: boolean;
@@ -105,8 +112,14 @@ export default function IngredientAccordion() {
 			let temp: Category[] = [...categories];
 			let newCatIndex: number = categories.findIndex(category => category.id === over.id);
 			let oldCatIndex: number | null = prevCategory;
+			console.log("oldCatIndex", oldCatIndex);
 
 			if (oldCatIndex !== null && oldCatIndex !== newCatIndex) {
+				// oldCatIndex--;
+				console.log("oldCatIndex", oldCatIndex);
+				console.log("categories[oldCatIndex]", categories[oldCatIndex]);
+				console.log("categories", categories);
+
 				let foodIndex: number = categories[oldCatIndex].foods.findIndex(food => food.name === foodDragged);
 				temp[newCatIndex].foods.push(categories[oldCatIndex].foods[foodIndex]);
 				temp[oldCatIndex].foods.splice(foodIndex, 1);
@@ -128,7 +141,7 @@ export default function IngredientAccordion() {
 		);
 		console.log("category", category);
 		if (category) {
-			console.log("category.id", category.id);
+			// console.log("category.id", category.id);
 			setPrevCategory(category.id);
 		}
 		setFoodDragged(event.active.id.substring(event.active.id.indexOf(" ") + 1));
@@ -330,6 +343,7 @@ export default function IngredientAccordion() {
 					handleDragStart(event);
 				}}
 				onDragEnd={handleDragEnd}
+				sensors={sensors}
 			>
 				{categories.map((category, categoryIndex) => (
 					<Droppable
@@ -427,61 +441,69 @@ export default function IngredientAccordion() {
 						</div>
 						{category.isOpen && (
 							<div className="px-4 pb-4">
-								<ul>
+								<ul className="flex flex-col">
 									{category.foods.map((food, foodIndex) => (
 										<Draggable
 											// key={food.name}
 											key={foodIndex}
 											id={`${foodIndex} ${food.name ? food.name : "food"}`}
 											className="text-gray-600 flex justify-between my-1 align-middle"
-											// onClick={(event: any) => {
-											// 	console.log("food", food);
-											// 	setInput(food.name);
-											// 	setSelected(food.name);
-											// }}
-											handle
 										>
-											<div className="flex">
-												<span
-													className="my-auto mx-1 flex items-center"
-													onClick={() => {
-														console.log("here");
-													}}
-												>
-													{food.name}: {food.quantity}
-												</span>
-												{selected === food.name ? (
-													<form className="flex items-center">
-														<input
-															placeholder="test"
-															value={input}
-															autoFocus
-															onChange={event => {
-																setInput(event.target.value);
-															}}
-														></input>
-														<button
-															type="submit"
-															className="w-6 h-6 bg-green-400"
-															onClick={event => {
-																handleFoodEdit(event, categoryIndex, food.name);
-															}}
-														>
-															<svg
-																className="w-6 h-6 bg-green-400 fill-white"
-																xmlns="http://www.w3.org/2000/svg"
-																height="24"
-																viewBox="0 -960 960 960"
-																width="24"
+											<div className="flex justify-between align-middle my-1">
+												<div className="flex">
+													<svg
+														className="bg-red-500 cursor-pointer text-white fill-white mx-2 rounded-md mr-1"
+														onClick={event => {
+															event.stopPropagation();
+															handleDecrementQuantity(categoryIndex, foodIndex);
+														}}
+														xmlns="http://www.w3.org/2000/svg"
+														height="24"
+														viewBox="0 -960 960 960"
+														width="24"
+													>
+														<path d="M200-440v-80h560v80H200Z" />
+													</svg>
+													<span
+														className="my-auto mx-1 flex items-center w-32"
+														// onClick={() => {
+														// 	console.log("here");
+														// }}
+													>
+														{food.name}: {food.quantity}
+													</span>
+													{selected === food.name ? (
+														<form className="flex items-center">
+															<input
+																placeholder="test"
+																value={input}
+																autoFocus
+																onChange={event => {
+																	setInput(event.target.value);
+																}}
+															></input>
+															<button
+																type="submit"
+																className="w-6 h-6 bg-green-400"
+																onClick={event => {
+																	handleFoodEdit(event, categoryIndex, food.name);
+																}}
 															>
-																<path d="M840-680v480q0 33-23.5 56.5T760-120H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h480l160 160Zm-80 34L646-760H200v560h560v-446ZM480-240q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM240-560h360v-160H240v160Zm-40-86v446-560 114Z" />
-															</svg>
-														</button>
-													</form>
-												) : (
-													<form style={{ display: "none" }}></form>
-												)}
-												{/* <button
+																<svg
+																	className="w-6 h-6 bg-green-400 fill-white"
+																	xmlns="http://www.w3.org/2000/svg"
+																	height="24"
+																	viewBox="0 -960 960 960"
+																	width="24"
+																>
+																	<path d="M840-680v480q0 33-23.5 56.5T760-120H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h480l160 160Zm-80 34L646-760H200v560h560v-446ZM480-240q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM240-560h360v-160H240v160Zm-40-86v446-560 114Z" />
+																</svg>
+															</button>
+														</form>
+													) : (
+														<form style={{ display: "none" }}></form>
+													)}
+													{/* <button
                                                     className="bg-red-500 text-white px-2 py-1 mx-1 rounded-md text-xs font-bold"
                                                     onClick={(event) => {
                                                         event.stopPropagation();
@@ -490,20 +512,8 @@ export default function IngredientAccordion() {
                                                 >
                                                     -
                                                 </button> */}
-												<svg
-													className="bg-red-500 cursor-pointer text-white fill-white mx-2 rounded-md mr-1"
-													onClick={event => {
-														event.stopPropagation();
-														handleDecrementQuantity(categoryIndex, foodIndex);
-													}}
-													xmlns="http://www.w3.org/2000/svg"
-													height="24"
-													viewBox="0 -960 960 960"
-													width="24"
-												>
-													<path d="M200-440v-80h560v80H200Z" />
-												</svg>
-												{/* <button
+													{/* /// HEREEee */}
+													{/* <button
                                                     className="bg-green-500 text-white px-2 py-1 mx-1 rounded-md text-xs font-bold mr-1"
                                                     onClick={(event) => {
                                                         event.stopPropagation();
@@ -512,18 +522,32 @@ export default function IngredientAccordion() {
                                                 >
                                                     +
                                                 </button> */}
+													<svg
+														className="bg-green-500 cursor-pointer text-white fill-white mx-2 rounded-md mr-1"
+														onClick={event => {
+															event.stopPropagation();
+															handleIncrementQuantity(categoryIndex, foodIndex);
+														}}
+														xmlns="http://www.w3.org/2000/svg"
+														height="24"
+														viewBox="0 -960 960 960"
+														width="24"
+													>
+														<path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+													</svg>
+												</div>
 												<svg
-													className="bg-green-500 cursor-pointer text-white fill-white mx-2 rounded-md mr-1"
+													className="bg-red-500 cursor-pointer text-white fill-white rounded-md my-auto text-xs w-6 h-6 font-bold"
 													onClick={event => {
 														event.stopPropagation();
-														handleIncrementQuantity(categoryIndex, foodIndex);
+														handleDeleteFood(categoryIndex, foodIndex);
 													}}
 													xmlns="http://www.w3.org/2000/svg"
 													height="24"
 													viewBox="0 -960 960 960"
 													width="24"
 												>
-													<path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+													<path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
 												</svg>
 											</div>
 
@@ -536,19 +560,6 @@ export default function IngredientAccordion() {
                                             >
                                                 X
                                             </button> */}
-											<svg
-												className="bg-red-500 cursor-pointer text-white fill-white rounded-md my-auto text-xs w-6 h-6 font-bold"
-												onClick={event => {
-													event.stopPropagation();
-													handleDeleteFood(categoryIndex, foodIndex);
-												}}
-												xmlns="http://www.w3.org/2000/svg"
-												height="24"
-												viewBox="0 -960 960 960"
-												width="24"
-											>
-												<path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
-											</svg>
 										</Draggable>
 									))}
 								</ul>

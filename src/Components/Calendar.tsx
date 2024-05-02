@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { retrieveLocalData, updateLocalData } from "../utils";
-import { PlannedMonth, Meal, Category } from "../types";
+import { PlannedMonth, Meal, Category, Food } from "../types";
 import { getMonthName } from "../utils";
 import { useTheme } from "../components/ThemeProvider";
 
@@ -137,49 +137,99 @@ export default function Calendar({}: Props) {
 		event.stopPropagation();
 		// Create a new object with the current state
 		let tempPlannedMeals: any = { ...plannedMeals };
+		// let tempPlannedMeals: any = JSON.parse(JSON.stringify(plannedMeals));
 		// Update the checked property of the specific day
 		tempPlannedMeals[day].checked = !tempPlannedMeals[day].checked;
 		if (tempPlannedMeals[day].checked) {
 			// Get the ingredients for the selected meal
 			const mealIngredients = savedMeals.find(savedMeal => savedMeal.name === meal)?.ingredients;
 			// Loop through the ingredients and update the quantities
+			let tempIngredients = JSON.parse(JSON.stringify(ingredients));
+
 			mealIngredients?.forEach(ingredient => {
-				const ingredientCategory = ingredients.find(category => category.foods.find(food => food.name === ingredient)?.name === ingredient);
-				const foodItem = ingredientCategory?.foods.find(food => food.name === ingredient);
-				if (foodItem?.quantity) {
-					foodItem.quantity -= 1;
-					if (foodItem.quantity <= 0) {
-						// Remove the ingredient if the quantity is zero
-						ingredientCategory!.foods = ingredientCategory!.foods.filter(food => food.name !== ingredient);
+				const ingredientCategoryIndex = tempIngredients.findIndex(
+					(category: Category) => category.foods.find(food => food.name === ingredient)?.name === ingredient
+				);
+				// console.log("ingredientCategory", ingredientCategory);
+
+				if (ingredientCategoryIndex !== -1) {
+					const foodItemIndex = tempIngredients[ingredientCategoryIndex].foods.findIndex((food: Food) => food.name === ingredient);
+
+					if (foodItemIndex !== -1) {
+						console.log(tempIngredients[ingredientCategoryIndex].foods[foodItemIndex].quantity);
+						tempIngredients[ingredientCategoryIndex].foods[foodItemIndex].quantity -= 1;
+						console.log(tempIngredients[ingredientCategoryIndex].foods[foodItemIndex].quantity);
+						if (tempIngredients[ingredientCategoryIndex].foods[foodItemIndex].quantity === 0) {
+							// Remove the ingredient if the quantity is zero
+							tempIngredients[ingredientCategoryIndex].foods = tempIngredients[ingredientCategoryIndex].foods.filter(
+								(food: Food) => food.name !== ingredient
+							);
+						}
+					}
+				}
+				console.log("tempIngredients", tempIngredients);
+				setIngredients(tempIngredients);
+				updateLocalData("ingredients", tempIngredients);
+			});
+
+			setPlannedMeals(tempPlannedMeals);
+			updateLocalData(getMonthName(currentMonthIndex), tempPlannedMeals);
+		} else {
+			const mealIngredients = savedMeals.find(savedMeal => savedMeal.name === meal)?.ingredients;
+			console.log("mealIngredients", mealIngredients);
+			let temp: any = [...ingredients];
+			mealIngredients?.forEach((ingredient, idx) => {
+				console.log("ingredient", ingredient);
+				// console.log("ingredients", ingredients);
+				// grabs category of the ingredient, returns undefined if doesn't find it
+				const ingredientCategory = ingredients.find(category => category.foods.some(food => food.name === ingredient));
+				console.log("ingredientCategory", ingredientCategory);
+				if (ingredientCategory !== undefined) {
+					const foodItem = ingredientCategory?.foods.find(food => food.name === ingredient);
+					console.log("foodItem", foodItem);
+					if (foodItem) {
+						foodItem.quantity += 1;
+					}
+				} else {
+					console.log("here");
+					//if ingredient category is undefined
+					let unCatIndex: number;
+					if (idx === 0) {
+						unCatIndex = ingredients.findIndex(category => category.name === "Uncategorized");
+					} else {
+						unCatIndex = temp.findIndex((category: Category) => category.name === "Uncategorized");
+					}
+					// console.log("unCatIndex", unCatIndex);
+					// console.log("temp", temp);
+					// console.log("temp[unCatIndex]", temp[unCatIndex]);
+					if (unCatIndex !== -1) {
+						temp[unCatIndex].foods.push({
+							id: temp[unCatIndex].foods.length,
+							name: ingredient,
+							quantity: 1,
+							category: "Uncategorized"
+						});
+					} else {
+						temp.push({
+							id: ingredients.length,
+							name: "Uncategorized",
+							foods: [
+								{
+									id: 1,
+									name: ingredient,
+									quantity: 1,
+									category: "Uncategorized"
+								}
+							]
+						});
 					}
 				}
 			});
-		} else {
-			// Do the inverse of the above, i.e. add the ingredients back
-			const mealIngredients = savedMeals.find(savedMeal => savedMeal.name === meal)?.ingredients;
-			mealIngredients?.forEach(ingredient => {
-				const ingredientCategory = ingredients.find(category => category.foods.find(food => food.name === ingredient)?.name === ingredient);
-				const foodItem = ingredientCategory?.foods.find(food => food.name === ingredient);
-				console.log("foodItem", foodItem);
-				if (foodItem) {
-					foodItem.quantity += 1;
-				} else {
-					ingredientCategory?.foods.push({
-						id: ingredientCategory.foods.length + 1,
-						name: ingredient,
-						quantity: 1,
-						category: ingredientCategory.name
-					});
-				}
-			}); // LEFT OFF HERE, NEED TO ADD THE INGREDIENTS IF THEY DONT EXIST AND DETERMINE WHAT CATEGORY THEY SHOULD GO UNDER (?)
+			setIngredients(temp);
+			console.log("temp", temp);
+			// Update local storage with the new ingredient data
+			updateLocalData("ingredients", temp);
 		}
-		// Update the state with the new object
-		setPlannedMeals(tempPlannedMeals);
-		// Update local storage with the new ingredient data
-		console.log("ingredients", ingredients);
-		updateLocalData("ingredients", ingredients);
-
-		updateLocalData(getMonthName(currentMonthIndex), tempPlannedMeals);
 	};
 
 	// Get current year, day, and month
@@ -246,16 +296,16 @@ export default function Calendar({}: Props) {
 											parseInt(day) === currentDay && currentMonthIndex === currentMonth ? "border-2 border-pink-600" : ""
 										} ${selectedDay === day ? "bg-blue-200" : ""}`}
 										onClick={e => {
-											console.log(selectedDay, day);
+											// console.log(selectedDay, day);
 											if (selectedDay !== day) {
-												console.log("clicked on a different day");
+												// console.log("clicked on a different day");
 												selectDay(e, day);
 											} else {
 												//if the drop down is clicked, do not deselect the day
 												if ((e.target as HTMLElement).tagName === "SELECT") {
 													return;
 												}
-												console.log("clicked on the same day");
+												// console.log("clicked on the same day");
 												setSelectedDay(null);
 											}
 										}}
