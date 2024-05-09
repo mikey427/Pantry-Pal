@@ -1,8 +1,292 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { PlannedMonth, Meal, Category, Food } from "../types";
+import { retrieveLocalData, updateLocalData, getMonthName, nthNumber } from "../utils";
+import SavedMeals from "../Pages/SavedMeals";
 
 type Props = {};
 
 export default function NewCalendar({}: Props) {
+	const [currentMonthIndex, setCurrentMonthIndex] = useState(new Date().getMonth());
+	const [selectedDay, setSelectedDay] = useState<string | null>();
+	const [input, setInput] = useState("");
+	const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
+	const [plannedMeals, setPlannedMeals] = useState<PlannedMonth>({
+		// Initialize planned meals for the month with empty strings
+		1: { name: "", checked: false },
+		2: { name: "", checked: false },
+		3: { name: "", checked: false },
+		4: { name: "", checked: false },
+		5: { name: "", checked: false },
+		6: { name: "", checked: false },
+		7: { name: "", checked: false },
+		8: { name: "", checked: false },
+		9: { name: "", checked: false },
+		10: { name: "", checked: false },
+		11: { name: "", checked: false },
+		12: { name: "", checked: false },
+		13: { name: "", checked: false },
+		14: { name: "", checked: false },
+		15: { name: "", checked: false },
+		16: { name: "", checked: false },
+		17: { name: "", checked: false },
+		18: { name: "", checked: false },
+		19: { name: "", checked: false },
+		20: { name: "", checked: false },
+		21: { name: "", checked: false },
+		22: { name: "", checked: false },
+		23: { name: "", checked: false },
+		24: { name: "", checked: false },
+		25: { name: "", checked: false },
+		26: { name: "", checked: false },
+		27: { name: "", checked: false },
+		28: { name: "", checked: false },
+		29: { name: "", checked: false },
+		30: { name: "", checked: false },
+		31: { name: "", checked: false }
+	});
+	const [savedMeals, setSavedMeals] = useState<Meal[]>([]);
+	const [ingredients, setIngredients] = useState<Category[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [showModal, setShowModal] = useState(false);
+	const [showDropdown, setShowDropdown] = useState(false);
+	const [showError, setShowError] = useState(false);
+	const modalRef = useRef<HTMLDivElement>(null);
+
+	const closeModal = (event: any) => {
+		if (showModal && !modalRef.current?.contains(event.target)) {
+			setShowModal(false);
+			setInput("");
+		}
+	};
+
+	document.addEventListener("mousedown", event => {
+		closeModal(event);
+	});
+	// Function to handle day selection
+	const selectDay = (event: any, day: string): void => {
+		event.stopPropagation();
+		if (!day) {
+			return; // Do nothing if day is empty
+		}
+		// Set input field with the planned meal for the selected day
+		setInput(plannedMeals[day].name.toString());
+		setSelectedDay(day);
+	};
+
+	const handleErrorMessage = async () => {
+		setShowError(true);
+		setTimeout(() => {
+			setShowError(false);
+		}, 15000);
+	};
+
+	// Function to handle form submission
+	const handleSubmit = (event: any, day: string): void => {
+		// Check if the meal is already saved
+		const mealExists = savedMeals.find(meal => meal.name === input);
+		if (!mealExists) {
+			handleErrorMessage();
+			return;
+		}
+		event.stopPropagation();
+		// Update planned meal for the selected day
+		let temp: any = plannedMeals;
+		temp[Number(day)].name = input;
+		// console.log('event', event.target);
+
+		// Clear input field and hide the form
+		setInput("");
+		setSelectedDay(null);
+		setShowModal(false);
+
+		// Update local storage with the modified planned meals data
+		updateLocalData(getMonthName(currentMonthIndex), plannedMeals);
+	};
+
+	// Function to get the number of days in a month
+	const numDaysInMonth = (year: number, month: number) => {
+		return new Date(year, month + 1, 0).getDate();
+	};
+
+	// Function to get the days for the specified month
+	const getDaysForMonth = (year: number, month: number) => {
+		// Get the first day of the month and calculate the number of days in the month
+		const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+		const firstDayOfMonth = new Date(year, month, 1);
+		const startDay = daysOfWeek[firstDayOfMonth.getDay()];
+		const daysInThisMonth = numDaysInMonth(year, month);
+
+		// Create an array of days in the month
+		const emptyCellsBeforeStart = Array.from({ length: daysOfWeek.indexOf(startDay) }, (_, i) => {
+			const day = numDaysInMonth(year, month - 1) - (daysOfWeek.indexOf(startDay) - i - 1);
+			return day.toString();
+		});
+		const daysOfMonth = Array.from({ length: daysInThisMonth }, (_, i) => (i + 1).toString());
+		const emptyCellsAfterEnd = Array.from({ length: 7 - ((emptyCellsBeforeStart.length + daysOfMonth.length) % 7) }, (_, i) => {
+			const day = i + 1;
+			return day.toString();
+		});
+		const allDays = [...emptyCellsBeforeStart, ...daysOfMonth, ...emptyCellsAfterEnd];
+
+		// Split the days into weeks
+		const weeks: string[][] = [];
+		while (allDays.length > 0) {
+			weeks.push(allDays.splice(0, 7));
+		}
+		console.log("weeks", weeks);
+		if (String(weeks[weeks.length - 1]) === String([1, 2, 3, 4, 5, 6, 7])) {
+			weeks.pop();
+		}
+		return weeks;
+	};
+
+	// Function to handle previous month button click
+	const handlePrevMonth = () => {
+		setCurrentMonthIndex(prevIndex => (prevIndex === 0 ? 11 : prevIndex - 1));
+	};
+
+	// Function to handle next month button click
+	const handleNextMonth = () => {
+		setCurrentMonthIndex(prevIndex => (prevIndex === 11 ? 0 : prevIndex + 1));
+	};
+
+	const ingredients12 = [
+		{
+			id: 1,
+			name: "Category 1",
+			foods: [
+				{
+					name: "Food 1",
+					quantity: 1,
+					catefor: "Category 1"
+				},
+				{
+					name: "Food 2",
+					quantity: 2,
+					category: "Category 1"
+				}
+			]
+		}
+	];
+
+	const handleCheck = (event: any, day: string, meal: string) => {
+		event.stopPropagation();
+		// Create a new object with the current state
+		let tempPlannedMeals: any = { ...plannedMeals };
+		// let tempPlannedMeals: any = JSON.parse(JSON.stringify(plannedMeals));
+		// Update the checked property of the specific day
+		tempPlannedMeals[day].checked = !tempPlannedMeals[day].checked;
+		if (tempPlannedMeals[day].checked) {
+			// Get the ingredients for the selected meal
+			const mealIngredients = savedMeals.find(savedMeal => savedMeal.name === meal)?.ingredients;
+			// Loop through the ingredients and update the quantities
+			let tempIngredients = JSON.parse(JSON.stringify(ingredients));
+
+			mealIngredients?.forEach(ingredient => {
+				const ingredientCategoryIndex = tempIngredients.findIndex(
+					(category: Category) => category.foods.find(food => food.name === ingredient)?.name === ingredient
+				);
+				// console.log("ingredientCategory", ingredientCategory);
+
+				if (ingredientCategoryIndex !== -1) {
+					const foodItemIndex = tempIngredients[ingredientCategoryIndex].foods.findIndex((food: Food) => food.name === ingredient);
+
+					if (foodItemIndex !== -1) {
+						// console.log(tempIngredients[ingredientCategoryIndex].foods[foodItemIndex].quantity);
+						tempIngredients[ingredientCategoryIndex].foods[foodItemIndex].quantity -= 1;
+						// console.log(tempIngredients[ingredientCategoryIndex].foods[foodItemIndex].quantity);
+						if (tempIngredients[ingredientCategoryIndex].foods[foodItemIndex].quantity === 0) {
+							// Remove the ingredient if the quantity is zero
+							tempIngredients[ingredientCategoryIndex].foods = tempIngredients[ingredientCategoryIndex].foods.filter(
+								(food: Food) => food.name !== ingredient
+							);
+						}
+					}
+				}
+				// console.log("tempIngredients", tempIngredients);
+				setIngredients(tempIngredients);
+				updateLocalData("ingredients", tempIngredients);
+			});
+
+			setPlannedMeals(tempPlannedMeals);
+			updateLocalData(getMonthName(currentMonthIndex), tempPlannedMeals);
+		} else {
+			const mealIngredients = savedMeals.find(savedMeal => savedMeal.name === meal)?.ingredients;
+			// console.log("mealIngredients", mealIngredients);
+			let temp: any = [...ingredients];
+			mealIngredients?.forEach((ingredient, idx) => {
+				// console.log("ingredient", ingredient);
+				// console.log("ingredients", ingredients);
+				// grabs category of the ingredient, returns undefined if doesn't find it
+				const ingredientCategory = ingredients.find(category => category.foods.some(food => food.name === ingredient));
+				// console.log("ingredientCategory", ingredientCategory);
+				if (ingredientCategory !== undefined) {
+					const foodItem = ingredientCategory?.foods.find(food => food.name === ingredient);
+					// console.log("foodItem", foodItem);
+					if (foodItem) {
+						foodItem.quantity += 1;
+					}
+				} else {
+					// console.log("here");
+					//if ingredient category is undefined
+					let unCatIndex: number;
+					if (idx === 0) {
+						unCatIndex = ingredients.findIndex(category => category.name === "Uncategorized");
+					} else {
+						unCatIndex = temp.findIndex((category: Category) => category.name === "Uncategorized");
+					}
+					// console.log("unCatIndex", unCatIndex);
+					// console.log("temp", temp);
+					// console.log("temp[unCatIndex]", temp[unCatIndex]);
+					if (unCatIndex !== -1) {
+						temp[unCatIndex].foods.push({
+							id: temp[unCatIndex].foods.length,
+							name: ingredient,
+							quantity: 1,
+							category: "Uncategorized"
+						});
+					} else {
+						temp.push({
+							id: ingredients.length,
+							name: "Uncategorized",
+							foods: [
+								{
+									id: 1,
+									name: ingredient,
+									quantity: 1,
+									category: "Uncategorized"
+								}
+							]
+						});
+					}
+				}
+			});
+			setIngredients(temp);
+			// console.log("temp", temp);
+			// Update local storage with the new ingredient data
+			updateLocalData("ingredients", temp);
+		}
+	};
+
+	// Get current year, day, and month
+	const currentYear = new Date().getFullYear();
+	const currentDay = new Date().getDate();
+	const currentMonth = new Date().getMonth();
+	const daysInMonth = getDaysForMonth(currentYear, currentMonthIndex);
+
+	// Effect hook to retrieve local data when currentMonthIndex changes
+	useEffect(() => {
+		setPlannedMeals(retrieveLocalData("calendarData", getMonthName(currentMonthIndex)));
+		setSavedMeals(retrieveLocalData("savedMeals"));
+		setIngredients(retrieveLocalData("ingredients"));
+		setTimeout(() => setLoading(false), 500);
+		console.log("plannedMeals", plannedMeals);
+		// setLoading(false);
+		// console.log(retrieveLocalData("ingredients"));
+		// setInput(savedMeals[0]?.name);
+		// console.log
+	}, [currentMonthIndex]);
+
 	type Event = {
 		id: number;
 		name: string;
@@ -51,22 +335,73 @@ export default function NewCalendar({}: Props) {
 		return result;
 	}
 
-	// Usage
-	const calendarData = getCalendarMonth(2022, 0); // January 2022
-	console.log(calendarData);
+	function isSameDay(month: number, day: number): boolean {
+		const today = new Date();
+		return today.getMonth() === month && today.getDate() === day;
+	}
 
+	function isSameMonth(month: number, otherMonth: number): boolean {
+		return month === otherMonth;
+	}
+
+	// Usage
+	const calendarData = getCalendarMonth(2024, 2); // May 2024
+	// console.log(calendarData);
 	return (
 		<>
 			<div className="lg:flex lg:h-full lg:flex-col">
-				<header className="flex items-center justify-between border-b border-gray-200 px-6 py-4 lg:flex-none">
-					<h1 className="text-base font-semibold leading-6 text-gray-900">
-						<time dateTime="2022-01">January 2022</time>
+				<header className="flex items-center justify-between px-6 py-4 lg:flex-none">
+					<h1 className="text-base font-semibold leading-6 text-white">
+						<time dateTime={`${currentYear}-${currentMonth + 1 < 10 ? "0" + String(currentMonth + 1) : String(currentMonth + 1)}`}>
+							{getMonthName(currentMonthIndex)}
+						</time>
 					</h1>
 					<div className="flex items-center">
+						<button
+							className={`bg-indigo-600 rounded-full w-8 h-8 text-2xl mr-2 ${selectedDay == null ? "hidden" : ""}`}
+							onClick={() => {
+								if (selectedDay !== null) {
+									console.log("selectedDay", selectedDay);
+									const day = String(selectedDay);
+									let temp: string = String(plannedMeals[day]?.name);
+									setInput(temp);
+								}
+								setShowModal(true);
+							}}
+						>
+							{plannedMeals[selectedDay!]?.name == "" ? (
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									strokeWidth={1.5}
+									stroke="currentColor"
+									className="w-5 h-5 m-auto text-white"
+								>
+									<path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+								</svg>
+							) : (
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									strokeWidth={1.5}
+									stroke="currentColor"
+									className="w-5 h-5 m-auto text-white"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
+									/>
+								</svg>
+							)}
+						</button>
 						<div className="relative flex items-center rounded-md bg-white shadow-sm md:items-stretch">
 							<button
 								type="button"
 								className="flex h-9 w-12 items-center justify-center rounded-l-md border-y border-l border-gray-300 pr-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pr-0 md:hover:bg-gray-50"
+								onClick={handlePrevMonth}
 							>
 								<span className="sr-only">Previous month</span>
 								<svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -77,16 +412,17 @@ export default function NewCalendar({}: Props) {
 									/>
 								</svg>
 							</button>
-							<button
+							{/* <button
 								type="button"
 								className="hidden border-y border-gray-300 px-3.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 focus:relative md:block"
 							>
-								Month
-							</button>
+								Today
+							</button> */}
 							<span className="relative -mx-px h-5 w-px bg-gray-300 md:hidden" />
 							<button
 								type="button"
 								className="flex h-9 w-12 items-center justify-center rounded-r-md border-y border-r border-gray-300 pl-1 text-gray-400 hover:text-gray-500 focus:relative md:w-9 md:pl-0 md:hover:bg-gray-50"
+								onClick={handleNextMonth}
 							>
 								<span className="sr-only">Next month</span>
 								<svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -100,63 +436,17 @@ export default function NewCalendar({}: Props) {
 						</div>
 						<div className="hidden md:ml-4 md:flex md:items-center">
 							<div className="relative">
-								{/* <button
-									type="button"
-									className="flex items-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-									id="menu-button"
-									aria-expanded="false"
-									aria-haspopup="true"
-								>
-									Month view
-									<svg className="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-										<path
-											fillRule="evenodd"
-											d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-											clipRule="evenodd"
-										/>
-									</svg>
-								</button> */}
 								{/*
-		  Dropdown menu, show/hide based on menu state.
-	
-		  Entering: "transition ease-out duration-100"
-			From: "transform opacity-0 scale-95"
-			To: "transform opacity-100 scale-100"
-		  Leaving: "transition ease-in duration-75"
-			From: "transform opacity-100 scale-100"
-			To: "transform opacity-0 scale-95"
-		*/}
-								{/* <div
-									className="absolute right-0 z-10 mt-3 w-36 origin-top-right overflow-hidden rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-									role="menu"
-									aria-orientation="vertical"
-									aria-labelledby="menu-button"
-									tabIndex={-1}
-								>
-									<div className="py-1" role="none">
-										// Active: "bg-gray-100 text-gray-900", Not Active: "text-gray-700"
-										<a href="#" className="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabIndex={-1} id="menu-item-0">
-											Day view
-										</a>
-										<a href="#" className="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabIndex={-1} id="menu-item-1">
-											Week view
-										</a>
-										<a href="#" className="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabIndex={-1} id="menu-item-2">
-											Month view
-										</a>
-										<a href="#" className="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabIndex={-1} id="menu-item-3">
-											Year view
-										</a>
-									</div>
-								</div> */}
+      Dropdown menu, show/hide based on menu state.
+
+      Entering: "transition ease-out duration-100"
+        From: "transform opacity-0 scale-95"
+        To: "transform opacity-100 scale-100"
+      Leaving: "transition ease-in duration-75"
+        From: "transform opacity-100 scale-100"
+        To: "transform opacity-0 scale-95"
+    */}
 							</div>
-							<div className="ml-6 h-6 w-px bg-gray-300" />
-							<button
-								type="button"
-								className="ml-6 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-							>
-								Add event
-							</button>
 						</div>
 						<div className="relative ml-6 md:hidden">
 							<button
@@ -172,20 +462,24 @@ export default function NewCalendar({}: Props) {
 								</svg>
 							</button>
 							{/*
-		Dropdown menu, show/hide based on menu state.
-	
-		Entering: "transition ease-out duration-100"
-		  From: "transform opacity-0 scale-95"
-		  To: "transform opacity-100 scale-100"
-		Leaving: "transition ease-in duration-75"
-		  From: "transform opacity-100 scale-100"
-		  To: "transform opacity-0 scale-95"
-	  */}
+    Dropdown menu, show/hide based on menu state.
+
+    Entering: "transition ease-out duration-100"
+      From: "transform opacity-0 scale-95"
+      To: "transform opacity-100 scale-100"
+    Leaving: "transition ease-in duration-75"
+      From: "transform opacity-100 scale-100"
+      To: "transform opacity-0 scale-95"
+  */}
 						</div>
 					</div>
 				</header>
-				<div className="shadow ring-1 ring-black ring-opacity-5 lg:flex lg:flex-auto lg:flex-col">
-					<div className="grid grid-cols-7 gap-px border-b border-gray-300 bg-gray-200 text-center text-xs font-semibold leading-6 text-gray-700 lg:flex-none">
+				<div className="shadow ring-1 ring-black ring-opacity-5 lg:flex lg:flex-auto lg:flex-col rounded-t-lg">
+					<div className="grid grid-cols-7 gap-px border-b border-gray-300 bg-gray-200 text-center text-xs font-semibold leading-6 text-gray-700 lg:flex-none rounded-t-lg">
+						<div className="flex justify-center bg-white py-2 rounded-tl-lg">
+							<span>S</span>
+							<span className="sr-only sm:not-sr-only">un</span>
+						</div>
 						<div className="flex justify-center bg-white py-2">
 							<span>M</span>
 							<span className="sr-only sm:not-sr-only">on</span>
@@ -206,47 +500,137 @@ export default function NewCalendar({}: Props) {
 							<span>F</span>
 							<span className="sr-only sm:not-sr-only">ri</span>
 						</div>
-						<div className="flex justify-center bg-white py-2">
+						<div className="flex justify-center bg-white py-2 rounded-tr-lg">
 							<span>S</span>
 							<span className="sr-only sm:not-sr-only">at</span>
 						</div>
-						<div className="flex justify-center bg-white py-2">
-							<span>S</span>
-							<span className="sr-only sm:not-sr-only">un</span>
-						</div>
 					</div>
-					<div className="flex bg-gray-200 text-xs leading-6 text-gray-700 lg:flex-auto">
-						<div className="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
-							{/*
-		Always include: "relative py-2 px-3"
-		Is current month, include: "bg-white"
-		Is not current month, include: "bg-gray-50 text-gray-500"
-	  */}
-							<div className="relative bg-gray-50 px-3 py-2 text-gray-500">
-								{/*
-		  Is today, include: "flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white"
-		*/}
-								<time dateTime="2021-12-27">27</time>
-							</div>
-							<div className="relative bg-gray-50 px-3 py-2 text-gray-500">
-								<time dateTime="2021-12-28">28</time>
-							</div>
-							<div className="relative bg-gray-50 px-3 py-2 text-gray-500">
-								<time dateTime="2021-12-29">29</time>
-							</div>
-							<div className="relative bg-gray-50 px-3 py-2 text-gray-500">
-								<time dateTime="2021-12-30">30</time>
-							</div>
-							<div className="relative bg-gray-50 px-3 py-2 text-gray-500">
-								<time dateTime="2021-12-31">31</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-01">1</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-01">2</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
+					<div className="flex bg-gray-200 text-xs leading-6 text-gray-700 lg:flex-auto rounded-b-lg">
+						<div className={`hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-${daysInMonth.length} lg:gap-px rounded-b-lg`}>
+							{/* Always include: "relative py-2 px-3" Is current month, include: "bg-white" Is not current month, include: "bg-gray-50
+							text-gray-500" */}
+							{daysInMonth.map((week, weekIndex) =>
+								week.map((day, dayIndex) => {
+									const isLastWeek = weekIndex === daysInMonth.length - 1;
+									const isFirstDayOfWeek = dayIndex === 0;
+									const isLastDayOfWeek = dayIndex === 6;
+									let classes;
+									if (day === selectedDay) {
+										classes = "relative bg-gray-50 px-3 py-2 text-gray-500 border border-indigo-600";
+									} else {
+										classes = "relative bg-white px-3 py-2 h-32";
+									}
+									if (isLastWeek && isFirstDayOfWeek) {
+										classes += " rounded-bl-lg";
+									} else if (isLastWeek && isLastDayOfWeek) {
+										classes += " rounded-br-lg";
+									}
+									if (isSameDay(currentMonthIndex, Number(day))) {
+										return (
+											<div
+												key={day}
+												className={classes}
+												onClick={() => {
+													if (day === selectedDay) {
+														setSelectedDay(null);
+													} else {
+														setSelectedDay(day);
+													}
+												}}
+											>
+												<time
+													className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white"
+													dateTime={`${currentYear}-${
+														currentMonthIndex + 1 < 10
+															? "0" + String(currentMonthIndex + 1)
+															: String(currentMonthIndex + 1)
+													}-${day}`}
+												>
+													{day}
+												</time>
+												{plannedMeals[day].name !== "" ? (
+													<ol className="mt-2">
+														<li>
+															<a href="#" className="group flex">
+																<p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">
+																	{plannedMeals[day].name}
+																</p>
+																<input type="checkbox" className="" />
+															</a>
+														</li>
+													</ol>
+												) : null}
+											</div>
+										);
+									} else if ((weekIndex == 0 && Number(day) > 7) || ((weekIndex == 4 || weekIndex == 5) && Number(day) <= 7)) {
+										let classes = "relative bg-gray-100 px-3 py-2 text-gray-500";
+										if (isLastWeek && isFirstDayOfWeek) {
+											classes += " rounded-bl-lg";
+										} else if (isLastWeek && isLastDayOfWeek) {
+											classes += " rounded-br-lg";
+										}
+										return (
+											<div key={day} className={classes}>
+												<time
+													dateTime={`${currentYear}-${
+														currentMonthIndex + 1 < 10
+															? "0" + String(currentMonthIndex + 1)
+															: String(currentMonthIndex + 1)
+													}-${day}`}
+												>
+													{day}
+												</time>
+											</div>
+										);
+									} else {
+										if (isLastWeek && isFirstDayOfWeek) {
+											classes += " rounded-bl-lg";
+										} else if (isLastWeek && isLastDayOfWeek) {
+											classes += " rounded-br-lg";
+										}
+										return (
+											<div
+												key={day}
+												className={classes}
+												onClick={() => {
+													if (day === selectedDay) {
+														setSelectedDay(null);
+													} else {
+														setSelectedDay(day);
+													}
+												}}
+											>
+												<time
+													dateTime={`${currentYear}-${
+														currentMonthIndex + 1 < 10
+															? "0" + String(currentMonthIndex + 1)
+															: String(currentMonthIndex + 1)
+													}-${day}`}
+												>
+													{day}
+												</time>
+												{plannedMeals[day].name !== "" ? (
+													<ol className="mt-2">
+														<li>
+															<a href="#" className="group flex">
+																<p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">
+																	{plannedMeals[day].name}
+																</p>
+																<input
+																	type="checkbox"
+																	className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+																/>
+															</a>
+														</li>
+													</ol>
+												) : null}
+											</div>
+										);
+									}
+								})
+							)}
+							{/* Full size example with events (food) */}
+							{/* <div className="relative bg-white px-3 py-2">
 								<time dateTime="2022-01-03">3</time>
 								<ol className="mt-2">
 									<li>
@@ -272,476 +656,229 @@ export default function NewCalendar({}: Props) {
 										</a>
 									</li>
 								</ol>
+							</div> */}
+							<div
+								className={`absolute bottom-48 mx-auto w-1/3 left-0 right-0 rounded-md bg-red-50 p-4 z-20 ${
+									!showError ? "hidden" : ""
+								}`}
+							>
+								<div className="flex">
+									<div className="flex-shrink-0">
+										<svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+											<path
+												fillRule="evenodd"
+												d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+												clipRule="evenodd"
+											/>
+										</svg>
+									</div>
+									<div className="ml-3">
+										<h3 className="text-sm font-medium text-red-800">There was an error with your selection.</h3>
+										<div className="mt-2 text-sm text-red-700">
+											<ul role="list" className="list-disc space-y-1 pl-5">
+												<li>You must select a meal from the list.</li>
+												<li>
+													If you don't see the meal you're planning on having for dinner that day, please navigate to the
+													Saved Meals page and add the new meal with it's ingredients.
+												</li>
+											</ul>
+										</div>
+									</div>
+								</div>
 							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-04">4</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-05">5</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-06">6</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-07">7</time>
-								<ol className="mt-2">
-									<li>
-										<a href="#" className="group flex">
-											<p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">Date night</p>
-											<time
-												dateTime="2022-01-08T18:00"
-												className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block"
-											>
-												6PM
-											</time>
-										</a>
-									</li>
-								</ol>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-08">8</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-09">9</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-10">10</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-11">11</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time
-									dateTime="2022-01-12"
-									className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 font-semibold text-white"
-								>
-									12
-								</time>
-								<ol className="mt-2">
-									<li>
-										<a href="#" className="group flex">
-											<p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">
-												Sam's birthday party
-											</p>
-											<time
-												dateTime="2022-01-25T14:00"
-												className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block"
-											>
-												2PM
-											</time>
-										</a>
-									</li>
-								</ol>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-13">13</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-14">14</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-15">15</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-16">16</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-17">17</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-18">18</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-19">19</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-20">20</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-21">21</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-22">22</time>
-								<ol className="mt-2">
-									<li>
-										<a href="#" className="group flex">
-											<p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">
-												Maple syrup museum
-											</p>
-											<time
-												dateTime="2022-01-22T15:00"
-												className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block"
-											>
-												3PM
-											</time>
-										</a>
-									</li>
-									<li>
-										<a href="#" className="group flex">
-											<p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">Hockey game</p>
-											<time
-												dateTime="2022-01-22T19:00"
-												className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block"
-											>
-												7PM
-											</time>
-										</a>
-									</li>
-								</ol>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-23">23</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-24">24</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-25">25</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-26">26</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-27">27</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-28">28</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-29">29</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-30">30</time>
-							</div>
-							<div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-31">31</time>
-							</div>
-							<div className="relative bg-gray-50 px-3 py-2 text-gray-500">
-								<time dateTime="2022-02-01">1</time>
-							</div>
-							<div className="relative bg-gray-50 px-3 py-2 text-gray-500">
-								<time dateTime="2022-02-02">2</time>
-							</div>
-							<div className="relative bg-gray-50 px-3 py-2 text-gray-500">
-								<time dateTime="2022-02-03">3</time>
-							</div>
-							<div className="relative bg-gray-50 px-3 py-2 text-gray-500">
-								<time dateTime="2022-02-04">4</time>
-								<ol className="mt-2">
-									<li>
-										<a href="#" className="group flex">
-											<p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">
-												Cinema with friends
-											</p>
-											<time
-												dateTime="2022-02-04T21:00"
-												className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block"
-											>
-												9PM
-											</time>
-										</a>
-									</li>
-								</ol>
-							</div>
-							<div className="relative bg-gray-50 px-3 py-2 text-gray-500">
-								<time dateTime="2022-02-05">5</time>
-							</div>
-							<div className="relative bg-gray-50 px-3 py-2 text-gray-500">
-								<time dateTime="2022-02-06">6</time>
+							<div
+								className={`relative z-10 ${!showModal ? "hidden" : ""}`}
+								aria-labelledby="modal-title"
+								role="dialog"
+								aria-modal="true"
+							>
+								{/*
+    Background backdrop, show/hide based on modal state.
+
+    Entering: "ease-out duration-300"
+From: "opacity-0"
+To: "opacity-100"
+    Leaving: "ease-in duration-200"
+From: "opacity-100"
+To: "opacity-0"
+  */}
+								<div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+								<div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+									<div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+										{/*
+  Modal panel, show/hide based on modal state.
+
+  Entering: "ease-out duration-300"
+    From: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+    To: "opacity-100 translate-y-0 sm:scale-100"
+  Leaving: "ease-in duration-200"
+    From: "opacity-100 translate-y-0 sm:scale-100"
+    To: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+*/}
+										<div
+											className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6 h-48"
+											ref={modalRef}
+										>
+											<div>
+												<div>
+													<label htmlFor="combobox" className="block text-sm font-medium leading-6 text-gray-900">
+														{selectedDay === null
+															? "Select a day"
+															: "Planned Meal For " +
+															  getMonthName(currentMonthIndex) +
+															  " " +
+															  selectedDay +
+															  nthNumber(Number(selectedDay))}
+													</label>
+													<div className="relative mt-2">
+														<input
+															id="combobox"
+															type="text"
+															value={input}
+															autoFocus
+															onChange={event => {
+																setInput(event.target.value);
+																// console.log(event.target.value);
+															}}
+															onFocus={() => setShowDropdown(true)}
+															className="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+															role="combobox"
+															aria-controls="options"
+															aria-expanded="false"
+														/>
+														<button
+															type="button"
+															className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
+															onClick={() => setShowDropdown(!showDropdown)}
+														>
+															<svg
+																className="h-5 w-5 text-gray-400"
+																viewBox="0 0 20 20"
+																fill="currentColor"
+																aria-hidden="true"
+															>
+																<path
+																	fillRule="evenodd"
+																	d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z"
+																	clipRule="evenodd"
+																/>
+															</svg>
+														</button>
+														<ul
+															className={`absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm ${
+																!showDropdown ? "hidden" : ""
+															}`}
+															id="options"
+															role="listbox"
+														>
+															{/*
+  Combobox option, manage highlight styles based on mouseenter/mouseleave and keyboard navigation.
+
+  Active: "text-white bg-indigo-600", Not Active: "text-gray-900"
+*/}
+															{savedMeals
+																.filter(meal => meal.name.toLowerCase().includes(input.toLowerCase()))
+																.map((meal, idx) => (
+																	<li
+																		key={idx}
+																		className="relative select-none py-2 pl-3 pr-9 text-gray-900 cursor-pointer hover:bg-gray-100 sm:text-sm sm:leading-6"
+																		id="option-0"
+																		role="option"
+																		tabIndex={-1}
+																		value={meal.name}
+																		onClick={() => {
+																			setInput(meal.name);
+																			setShowDropdown(false);
+																		}}
+																	>
+																		<span className="block truncate">{meal.name}</span>
+																		<span
+																			className={`absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600 ${
+																				plannedMeals[String(selectedDay)]?.name !== meal.name ? "hidden" : ""
+																			}`}
+																		>
+																			<svg
+																				className="h-5 w-5"
+																				viewBox="0 0 20 20"
+																				fill="currentColor"
+																				aria-hidden="true"
+																			>
+																				<path
+																					fillRule="evenodd"
+																					d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+																					clipRule="evenodd"
+																				/>
+																			</svg>
+																		</span>
+																	</li>
+																))}
+
+															{/* More items... */}
+														</ul>
+													</div>
+												</div>
+											</div>
+											<div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+												<button
+													type="button"
+													className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2"
+													onClick={event => handleSubmit(event, selectedDay!)}
+												>
+													Save
+												</button>
+												<button
+													type="button"
+													className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
+													onClick={() => {
+														setShowModal(false);
+														setInput("");
+													}}
+												>
+													Cancel
+												</button>
+											</div>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
+
 						<div className="isolate grid w-full grid-cols-7 grid-rows-6 gap-px lg:hidden">
 							{/*
-		Always include: "flex h-14 flex-col py-2 px-3 hover:bg-gray-100 focus:z-10"
-		Is current month, include: "bg-white"
-		Is not current month, include: "bg-gray-50"
-		Is selected or is today, include: "font-semibold"
-		Is selected, include: "text-white"
-		Is not selected and is today, include: "text-indigo-600"
-		Is not selected and is current month, and is not today, include: "text-gray-900"
-		Is not selected, is not current month, and is not today: "text-gray-500"
-	  */}
-							<button type="button" className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10">
-								{/*
-		  Always include: "ml-auto"
-		  Is selected, include: "flex h-6 w-6 items-center justify-center rounded-full"
-		  Is selected and is today, include: "bg-indigo-600"
-		  Is selected and is not today, include: "bg-gray-900"
-		*/}
+    Always include: "flex h-14 flex-col py-2 px-3 hover:bg-gray-100 focus:z-10"
+    Is current month, include: "bg-white"
+    Is not current month, include: "bg-gray-50"
+    Is selected or is today, include: "font-semibold"
+    Is selected, include: "text-white"
+    Is not selected and is today, include: "text-indigo-600"
+    Is not selected and is current month, and is not today, include: "text-gray-900"
+    Is not selected, is not current month, and is not today: "text-gray-500"
+  */}
+							{daysInMonth.map((week, weekIndex) =>
+								week.map((day, dayIndex) => {
+									return (
+										<button
+											type="button"
+											className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10"
+										>
+											<time className="ml-auto">{day}</time>
+											<span className="sr-only">0 events</span>
+										</button>
+									);
+								})
+							)}
+							{/* <button type="button" className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10">
+								
+      Always include: "ml-auto"
+      Is selected, include: "flex h-6 w-6 items-center justify-center rounded-full"
+      Is selected and is today, include: "bg-indigo-600"
+      Is selected and is not today, include: "bg-gray-900"
+   
 								<time dateTime="2021-12-27" className="ml-auto">
 									27
 								</time>
 								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2021-12-28" className="ml-auto">
-									28
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2021-12-29" className="ml-auto">
-									29
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2021-12-30" className="ml-auto">
-									30
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2021-12-31" className="ml-auto">
-									31
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-01" className="ml-auto">
-									1
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-02" className="ml-auto">
-									2
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-03" className="ml-auto">
-									3
-								</time>
-								<span className="sr-only">2 events</span>
-								<span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
-									<span className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
-									<span className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
-								</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-04" className="ml-auto">
-									4
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-05" className="ml-auto">
-									5
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-06" className="ml-auto">
-									6
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-07" className="ml-auto">
-									7
-								</time>
-								<span className="sr-only">1 event</span>
-								<span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
-									<span className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
-								</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-08" className="ml-auto">
-									8
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-09" className="ml-auto">
-									9
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-10" className="ml-auto">
-									10
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-11" className="ml-auto">
-									11
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button
-								type="button"
-								className="flex h-14 flex-col bg-white px-3 py-2 font-semibold text-indigo-600 hover:bg-gray-100 focus:z-10"
-							>
-								<time dateTime="2022-01-12" className="ml-auto">
-									12
-								</time>
-								<span className="sr-only">1 event</span>
-								<span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
-									<span className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
-								</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-13" className="ml-auto">
-									13
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-14" className="ml-auto">
-									14
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-15" className="ml-auto">
-									15
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-16" className="ml-auto">
-									16
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-17" className="ml-auto">
-									17
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-18" className="ml-auto">
-									18
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-19" className="ml-auto">
-									19
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-20" className="ml-auto">
-									20
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-21" className="ml-auto">
-									21
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button
-								type="button"
-								className="flex h-14 flex-col bg-white px-3 py-2 font-semibold text-white hover:bg-gray-100 focus:z-10"
-							>
-								<time dateTime="2022-01-22" className="ml-auto flex h-6 w-6 items-center justify-center rounded-full bg-gray-900">
-									22
-								</time>
-								<span className="sr-only">2 events</span>
-								<span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
-									<span className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
-									<span className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
-								</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-23" className="ml-auto">
-									23
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-24" className="ml-auto">
-									24
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-25" className="ml-auto">
-									25
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-26" className="ml-auto">
-									26
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-27" className="ml-auto">
-									27
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-28" className="ml-auto">
-									28
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-29" className="ml-auto">
-									29
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-30" className="ml-auto">
-									30
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-01-31" className="ml-auto">
-									31
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-02-01" className="ml-auto">
-									1
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-02-02" className="ml-auto">
-									2
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-02-03" className="ml-auto">
-									3
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-02-04" className="ml-auto">
-									4
-								</time>
-								<span className="sr-only">1 event</span>
-								<span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
-									<span className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
-								</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-02-05" className="ml-auto">
-									5
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
-							<button type="button" className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10">
-								<time dateTime="2022-02-06" className="ml-auto">
-									6
-								</time>
-								<span className="sr-only">0 events</span>
-							</button>
+							</button> */}
 						</div>
 					</div>
 				</div>

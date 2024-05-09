@@ -97,6 +97,20 @@ export const getMonthName = (index: number) => {
 	return monthNames[index];
 };
 
+export const nthNumber = (number: number) => {
+	if (number > 3 && number < 21) return "th";
+	switch (number % 10) {
+		case 1:
+			return "st";
+		case 2:
+			return "nd";
+		case 3:
+			return "rd";
+		default:
+			return "th";
+	}
+};
+
 export const retrieveLocalData = (dataName: string, modifier?: string): any => {
 	// console.log(dataName, modifier)
 	let data: any;

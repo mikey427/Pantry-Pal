@@ -66,13 +66,13 @@ export default function Home() {
 						plannedMeals.map((meal: String, idx: number) => {
 							if (idx >= currentDay && idx < currentDay + 7) {
 								console.log("here");
-								return <li key={idx}>{`${currentMonth} ${idx}: ${meal}`}</li>;
+								return <li key={idx} className="px-2">{`${currentMonth} ${idx}: ${meal}`}</li>;
 							} else {
-								return <p>No upcoming meals!</p>;
+								return <p className="w-max px-2">No upcoming meals!</p>;
 							}
 						})
 					) : (
-						<p className="w-max">No upcoming meals!</p>
+						<p className="w-max px-2">No upcoming meals!</p>
 					)}
 				</ul>
 			</a>
