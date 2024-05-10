@@ -51,11 +51,13 @@ export default function NewCalendar({}: Props) {
 	const [showDropdown, setShowDropdown] = useState(false);
 	const [showError, setShowError] = useState(false);
 	const modalRef = useRef<HTMLDivElement>(null);
+	let timer: any;
 
 	const closeModal = (event: any) => {
 		if (showModal && !modalRef.current?.contains(event.target)) {
 			setShowModal(false);
 			setInput("");
+			clearTimeout(timer);
 		}
 	};
 
@@ -76,7 +78,7 @@ export default function NewCalendar({}: Props) {
 	const handleErrorMessage = async () => {
 		setShowError(true);
 		setTimeout(() => {
-			setShowError(false);
+			timer = setShowError(false);
 		}, 15000);
 	};
 
@@ -515,7 +517,7 @@ export default function NewCalendar({}: Props) {
 									const isFirstDayOfWeek = dayIndex === 0;
 									const isLastDayOfWeek = dayIndex === 6;
 									let classes;
-									if (day === selectedDay) {
+									if (day == selectedDay) {
 										classes = "relative bg-gray-50 px-3 py-2 text-gray-500 border border-indigo-600";
 									} else {
 										classes = "relative bg-white px-3 py-2 h-32";
@@ -832,6 +834,7 @@ To: "opacity-0"
 													onClick={() => {
 														setShowModal(false);
 														setInput("");
+														clearTimeout(timer);
 													}}
 												>
 													Cancel
@@ -843,32 +846,162 @@ To: "opacity-0"
 							</div>
 						</div>
 
-						<div className="isolate grid w-full grid-cols-7 grid-rows-6 gap-px lg:hidden">
+						<div className={`isolate grid w-full grid-cols-7 grid-rows-${daysInMonth.length} gap-px lg:hidden`}>
 							{/*
+				// CALENDAR DAY ELEMENT
     Always include: "flex h-14 flex-col py-2 px-3 hover:bg-gray-100 focus:z-10"
     Is current month, include: "bg-white"
     Is not current month, include: "bg-gray-50"
     Is selected or is today, include: "font-semibold"
-    Is selected, include: "text-white"
+    Is selected, include: "text-white"?
     Is not selected and is today, include: "text-indigo-600"
     Is not selected and is current month, and is not today, include: "text-gray-900"
     Is not selected, is not current month, and is not today: "text-gray-500"
   */}
 							{daysInMonth.map((week, weekIndex) =>
 								week.map((day, dayIndex) => {
-									return (
-										<button
-											type="button"
-											className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10"
-										>
-											<time className="ml-auto">{day}</time>
-											<span className="sr-only">0 events</span>
-										</button>
-									);
+									const isLastWeek = weekIndex === daysInMonth.length - 1;
+									const isFirstDayOfWeek = dayIndex === 0;
+									const isLastDayOfWeek = dayIndex === 6;
+									let classes;
+									let timeClasses;
+									// Selected day
+									// console.log("currentMonthIndex:", currentMonthIndex);
+									// console.log("day:", day);
+									// console.log("selectedDay:", selectedDay);
+									if (day == selectedDay) {
+										classes = "flex h-14 flex-col py-2 px-3 hover:bg-gray-100 focus:z-10 bg-white font-semibold text-white";
+										timeClasses = "flex h-6 w-6 ml-auto items-center justify-center rounded-full";
+										// Is selected and and is today
+										if (isSameDay(currentMonthIndex, Number(day))) {
+											timeClasses += " bg-indigo-600";
+											// Is selected and not today
+										} else {
+											timeClasses += " bg-gray-900";
+										}
+										// console.log("timeClasses", timeClasses);
+										// Not selected day
+									} else {
+										classes = "flex h-14 flex-col py-2 px-3 hover:bg-gray-100 focus:z-10 bg-white";
+										timeClasses = "ml-auto";
+										if (isSameDay(currentMonthIndex, Number(day))) {
+											classes += " font-semibold text-indigo-600";
+										} else {
+											classes += " text-gray-900";
+										}
+									}
+									// First and last week
+									if (isLastWeek && isFirstDayOfWeek) {
+										classes += " rounded-bl-lg";
+									} else if (isLastWeek && isLastDayOfWeek) {
+										classes += " rounded-br-lg";
+									}
+									// Today
+									if (isSameDay(currentMonthIndex, Number(day))) {
+										classes += " font-semibold text-indigo-600";
+										return (
+											<div
+												key={day}
+												className={classes}
+												onClick={() => {
+													if (day === selectedDay) {
+														setSelectedDay(null);
+													} else {
+														setSelectedDay(day);
+													}
+												}}
+											>
+												<time
+													className={timeClasses}
+													dateTime={`${currentYear}-${
+														currentMonthIndex + 1 < 10
+															? "0" + String(currentMonthIndex + 1)
+															: String(currentMonthIndex + 1)
+													}-${day}`}
+												>
+													{day}
+												</time>
+												{plannedMeals[day].name !== "" ? (
+													<ol className="mt-2">
+														<li>
+															<a href="#" className="group flex">
+																<p className="">{plannedMeals[day].name}</p>
+																<input type="checkbox" className="" />
+															</a>
+														</li>
+													</ol>
+												) : null}
+											</div>
+										);
+										// Days outside of current month
+									} else if ((weekIndex == 0 && Number(day) > 7) || ((weekIndex == 4 || weekIndex == 5) && Number(day) <= 7)) {
+										let classes = "flex h-14 flex-col py-2 px-3 hover:bg-gray-100 focus:z-10 bg-gray-50 text-gray-500";
+										if (isLastWeek && isFirstDayOfWeek) {
+											classes += " rounded-bl-lg";
+										} else if (isLastWeek && isLastDayOfWeek) {
+											classes += " rounded-br-lg";
+										}
+										// console.log(timeClasses);
+										return (
+											<div key={day} className={classes}>
+												<time
+													className="ml-auto"
+													dateTime={`${currentYear}-${
+														currentMonthIndex + 1 < 10
+															? "0" + String(currentMonthIndex + 1)
+															: String(currentMonthIndex + 1)
+													}-${day}`}
+												>
+													{day}
+												</time>
+											</div>
+										);
+										// Days in current month
+									} else {
+										if (isLastWeek && isFirstDayOfWeek) {
+											classes += " rounded-bl-lg";
+										} else if (isLastWeek && isLastDayOfWeek) {
+											classes += " rounded-br-lg";
+										}
+										return (
+											<div
+												key={day}
+												className={classes}
+												onClick={() => {
+													if (day === selectedDay) {
+														setSelectedDay(null);
+													} else {
+														setSelectedDay(day);
+													}
+												}}
+											>
+												<time
+													className={timeClasses}
+													dateTime={`${currentYear}-${
+														currentMonthIndex + 1 < 10
+															? "0" + String(currentMonthIndex + 1)
+															: String(currentMonthIndex + 1)
+													}-${day}`}
+												>
+													{day}
+												</time>
+											</div>
+										);
+									}
 								})
 							)}
+							{/* // return (
+									// 	<button
+									// 		type="button"
+									// 		className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10"
+									// 	>
+									// 		<time className="ml-auto">{day}</time>
+									// 	</button>
+									// );
+								})
+							)} */}
 							{/* <button type="button" className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10">
-								
+		//TIME ELEMENT
       Always include: "ml-auto"
       Is selected, include: "flex h-6 w-6 items-center justify-center rounded-full"
       Is selected and is today, include: "bg-indigo-600"
