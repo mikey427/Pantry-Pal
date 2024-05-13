@@ -270,6 +270,15 @@ export default function NewCalendar({}: Props) {
 		}
 	};
 
+	const openModal = () => {
+		if (selectedDay !== null) {
+			const day = String(selectedDay);
+			let temp: string = String(plannedMeals[day]?.name);
+			setInput(temp);
+		}
+		setShowModal(true);
+	};
+
 	// Get current year, day, and month
 	const currentYear = new Date().getFullYear();
 	const currentDay = new Date().getDate();
@@ -360,16 +369,10 @@ export default function NewCalendar({}: Props) {
 					</h1>
 					<div className="flex items-center">
 						<button
-							className={`bg-indigo-600 rounded-full w-8 h-8 text-2xl mr-2 ${selectedDay == null ? "hidden" : ""}`}
-							onClick={() => {
-								if (selectedDay !== null) {
-									console.log("selectedDay", selectedDay);
-									const day = String(selectedDay);
-									let temp: string = String(plannedMeals[day]?.name);
-									setInput(temp);
-								}
-								setShowModal(true);
-							}}
+							className={`bg-indigo-600 rounded-full w-8 h-8 text-2xl mr-2 ${
+								selectedDay == null ? "hidden" : plannedMeals[selectedDay!]?.name !== "" ? "hidden" : ""
+							}`}
+							onClick={openModal}
 						>
 							{plannedMeals[selectedDay!]?.name == "" ? (
 								<svg
@@ -449,30 +452,6 @@ export default function NewCalendar({}: Props) {
         To: "transform opacity-0 scale-95"
     */}
 							</div>
-						</div>
-						<div className="relative ml-6 md:hidden">
-							<button
-								type="button"
-								className="-mx-2 flex items-center rounded-full border border-transparent p-2 text-gray-400 hover:text-gray-500"
-								id="menu-0-button"
-								aria-expanded="false"
-								aria-haspopup="true"
-							>
-								<span className="sr-only">Open menu</span>
-								<svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-									<path d="M3 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM8.5 10a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM15.5 8.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" />
-								</svg>
-							</button>
-							{/*
-    Dropdown menu, show/hide based on menu state.
-
-    Entering: "transition ease-out duration-100"
-      From: "transform opacity-0 scale-95"
-      To: "transform opacity-100 scale-100"
-    Leaving: "transition ease-in duration-75"
-      From: "transform opacity-100 scale-100"
-      To: "transform opacity-0 scale-95"
-  */}
 						</div>
 					</div>
 				</header>
@@ -688,13 +667,18 @@ export default function NewCalendar({}: Props) {
 									</div>
 								</div>
 							</div>
-							<div
-								className={`relative z-10 ${!showModal ? "hidden" : ""}`}
-								aria-labelledby="modal-title"
-								role="dialog"
-								aria-modal="true"
-							>
-								{/*
+						</div>
+
+						<div
+							className={`relative z-30 ${!showModal ? "hidden" : ""}`}
+							aria-labelledby="modal-title"
+							role="dialog"
+							aria-modal="true"
+							onLoad={() => {
+								console.log("modal loaded");
+							}}
+						>
+							{/*
     Background backdrop, show/hide based on modal state.
 
     Entering: "ease-out duration-300"
@@ -704,10 +688,10 @@ To: "opacity-100"
 From: "opacity-100"
 To: "opacity-0"
   */}
-								<div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-								<div className="fixed inset-0 z-10 w-screen overflow-y-auto">
-									<div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-										{/*
+							<div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+							<div className="fixed inset-0 z-10 w-screen overflow-y-auto">
+								<div className="flex min-h-full justify-center p-4 text-center sm:items-center sm:p-0 mt-12 md:mt-34">
+									{/*
   Modal panel, show/hide based on modal state.
 
   Entering: "ease-out duration-300"
@@ -717,129 +701,127 @@ To: "opacity-0"
     From: "opacity-100 translate-y-0 sm:scale-100"
     To: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
 */}
-										<div
-											className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6 h-48"
-											ref={modalRef}
-										>
+									<div
+										className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6 h-52 md:h-48"
+										ref={modalRef}
+									>
+										<div>
 											<div>
-												<div>
-													<label htmlFor="combobox" className="block text-sm font-medium leading-6 text-gray-900">
-														{selectedDay === null
-															? "Select a day"
-															: "Planned Meal For " +
-															  getMonthName(currentMonthIndex) +
-															  " " +
-															  selectedDay +
-															  nthNumber(Number(selectedDay))}
-													</label>
-													<div className="relative mt-2">
-														<input
-															id="combobox"
-															type="text"
-															value={input}
-															autoFocus
-															onChange={event => {
-																setInput(event.target.value);
-																// console.log(event.target.value);
-															}}
-															onFocus={() => setShowDropdown(true)}
-															className="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-															role="combobox"
-															aria-controls="options"
-															aria-expanded="false"
-														/>
-														<button
-															type="button"
-															className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
-															onClick={() => setShowDropdown(!showDropdown)}
+												<label htmlFor="combobox" className="block text-sm font-medium leading-6 text-gray-900">
+													{selectedDay === null
+														? "Select a day"
+														: "Planned Meal For " +
+														  getMonthName(currentMonthIndex) +
+														  " " +
+														  selectedDay +
+														  nthNumber(Number(selectedDay))}
+												</label>
+												<div className="relative mt-2">
+													<input
+														id="combobox"
+														type="text"
+														value={input}
+														autoFocus
+														onChange={event => {
+															setInput(event.target.value);
+															// console.log(event.target.value);
+														}}
+														onFocus={() => setShowDropdown(true)}
+														className="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+														role="combobox"
+														aria-controls="options"
+														aria-expanded="false"
+													/>
+													<button
+														type="button"
+														className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
+														onClick={() => setShowDropdown(!showDropdown)}
+													>
+														<svg
+															className="h-5 w-5 text-gray-400"
+															viewBox="0 0 20 20"
+															fill="currentColor"
+															aria-hidden="true"
 														>
-															<svg
-																className="h-5 w-5 text-gray-400"
-																viewBox="0 0 20 20"
-																fill="currentColor"
-																aria-hidden="true"
-															>
-																<path
-																	fillRule="evenodd"
-																	d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z"
-																	clipRule="evenodd"
-																/>
-															</svg>
-														</button>
-														<ul
-															className={`absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm ${
-																!showDropdown ? "hidden" : ""
-															}`}
-															id="options"
-															role="listbox"
-														>
-															{/*
+															<path
+																fillRule="evenodd"
+																d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z"
+																clipRule="evenodd"
+															/>
+														</svg>
+													</button>
+													<ul
+														className={`absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm ${
+															!showDropdown ? "hidden" : ""
+														}`}
+														id="options"
+														role="listbox"
+													>
+														{/*
   Combobox option, manage highlight styles based on mouseenter/mouseleave and keyboard navigation.
 
   Active: "text-white bg-indigo-600", Not Active: "text-gray-900"
 */}
-															{savedMeals
-																.filter(meal => meal.name.toLowerCase().includes(input.toLowerCase()))
-																.map((meal, idx) => (
-																	<li
-																		key={idx}
-																		className="relative select-none py-2 pl-3 pr-9 text-gray-900 cursor-pointer hover:bg-gray-100 sm:text-sm sm:leading-6"
-																		id="option-0"
-																		role="option"
-																		tabIndex={-1}
-																		value={meal.name}
-																		onClick={() => {
-																			setInput(meal.name);
-																			setShowDropdown(false);
-																		}}
+														{savedMeals
+															.filter(meal => meal.name.toLowerCase().includes(input.toLowerCase()))
+															.map((meal, idx) => (
+																<li
+																	key={idx}
+																	className="relative select-none py-2 pl-3 pr-9 text-gray-900 cursor-pointer hover:bg-gray-100 sm:text-sm sm:leading-6"
+																	id="option-0"
+																	role="option"
+																	tabIndex={-1}
+																	value={meal.name}
+																	onClick={() => {
+																		setInput(meal.name);
+																		setShowDropdown(false);
+																	}}
+																>
+																	<span className="block truncate">{meal.name}</span>
+																	<span
+																		className={`absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600 ${
+																			plannedMeals[String(selectedDay)]?.name !== meal.name ? "hidden" : ""
+																		}`}
 																	>
-																		<span className="block truncate">{meal.name}</span>
-																		<span
-																			className={`absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600 ${
-																				plannedMeals[String(selectedDay)]?.name !== meal.name ? "hidden" : ""
-																			}`}
+																		<svg
+																			className="h-5 w-5"
+																			viewBox="0 0 20 20"
+																			fill="currentColor"
+																			aria-hidden="true"
 																		>
-																			<svg
-																				className="h-5 w-5"
-																				viewBox="0 0 20 20"
-																				fill="currentColor"
-																				aria-hidden="true"
-																			>
-																				<path
-																					fillRule="evenodd"
-																					d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-																					clipRule="evenodd"
-																				/>
-																			</svg>
-																		</span>
-																	</li>
-																))}
+																			<path
+																				fillRule="evenodd"
+																				d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+																				clipRule="evenodd"
+																			/>
+																		</svg>
+																	</span>
+																</li>
+															))}
 
-															{/* More items... */}
-														</ul>
-													</div>
+														{/* More items... */}
+													</ul>
 												</div>
 											</div>
-											<div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
-												<button
-													type="button"
-													className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2"
-													onClick={event => handleSubmit(event, selectedDay!)}
-												>
-													Save
-												</button>
-												<button
-													type="button"
-													className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
-													onClick={() => {
-														setShowModal(false);
-														setInput("");
-														clearTimeout(timer);
-													}}
-												>
-													Cancel
-												</button>
-											</div>
+										</div>
+										<div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+											<button
+												type="button"
+												className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:col-start-2"
+												onClick={event => handleSubmit(event, selectedDay!)}
+											>
+												Save
+											</button>
+											<button
+												type="button"
+												className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0"
+												onClick={() => {
+													setShowModal(false);
+													setInput("");
+												}}
+											>
+												Cancel
+											</button>
 										</div>
 									</div>
 								</div>
@@ -922,14 +904,9 @@ To: "opacity-0"
 													{day}
 												</time>
 												{plannedMeals[day].name !== "" ? (
-													<ol className="mt-2">
-														<li>
-															<a href="#" className="group flex">
-																<p className="">{plannedMeals[day].name}</p>
-																<input type="checkbox" className="" />
-															</a>
-														</li>
-													</ol>
+													<span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
+														<span className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
+													</span>
 												) : null}
 											</div>
 										);
@@ -954,6 +931,11 @@ To: "opacity-0"
 												>
 													{day}
 												</time>
+												{plannedMeals[day].name !== "" ? (
+													<span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
+														<span className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
+													</span>
+												) : null}
 											</div>
 										);
 										// Days in current month
@@ -985,6 +967,11 @@ To: "opacity-0"
 												>
 													{day}
 												</time>
+												{plannedMeals[day].name !== "" ? (
+													<span className="-mx-0.5 mt-auto flex flex-wrap-reverse">
+														<span className="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400" />
+													</span>
+												) : null}
 											</div>
 										);
 									}
@@ -1017,48 +1004,29 @@ To: "opacity-0"
 				</div>
 				<div className="px-4 py-10 sm:px-6 lg:hidden">
 					<ol className="divide-y divide-gray-100 overflow-hidden rounded-lg bg-white text-sm shadow ring-1 ring-black ring-opacity-5">
-						<li className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
-							<div className="flex-auto">
-								<p className="font-semibold text-gray-900">Maple syrup museum</p>
-								<time dateTime="2022-01-15T09:00" className="mt-2 flex items-center text-gray-700">
-									<svg className="mr-2 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-										<path
-											fillRule="evenodd"
-											d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z"
-											clipRule="evenodd"
-										/>
-									</svg>
-									3PM
-								</time>
-							</div>
-							<a
-								href="#"
-								className="ml-6 flex-none self-center rounded-md bg-white px-3 py-2 font-semibold text-gray-900 opacity-0 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400 focus:opacity-100 group-hover:opacity-100"
-							>
-								Edit<span className="sr-only">, Maple syrup museum</span>
-							</a>
-						</li>
-						<li className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
-							<div className="flex-auto">
-								<p className="font-semibold text-gray-900">Hockey game</p>
-								<time dateTime="2022-01-22T19:00" className="mt-2 flex items-center text-gray-700">
-									<svg className="mr-2 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-										<path
-											fillRule="evenodd"
-											d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z"
-											clipRule="evenodd"
-										/>
-									</svg>
-									7PM
-								</time>
-							</div>
-							<a
-								href="#"
-								className="ml-6 flex-none self-center rounded-md bg-white px-3 py-2 font-semibold text-gray-900 opacity-0 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400 focus:opacity-100 group-hover:opacity-100"
-							>
-								Edit<span className="sr-only">, Hockey game</span>
-							</a>
-						</li>
+						{selectedDay && plannedMeals[selectedDay].name !== "" ? (
+							<li className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
+								<div className="flex-auto flex items-center">
+									<p className="font-semibold text-gray-900">{plannedMeals[selectedDay].name}</p>
+									{/* <time dateTime="2022-01-15T09:00" className="mt-2 flex items-center text-gray-700">
+										<svg className="mr-2 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+											<path
+												fillRule="evenodd"
+												d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z"
+												clipRule="evenodd"
+											/>
+										</svg>
+										3PM
+									</time> */}
+								</div>
+								<button
+									className="ml-6 flex-none self-center rounded-md bg-white px-3 py-2 font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400 opacity-100"
+									onClick={openModal}
+								>
+									Edit<span className="sr-only">, {plannedMeals[selectedDay].name}</span>
+								</button>
+							</li>
+						) : null}
 					</ol>
 				</div>
 			</div>
