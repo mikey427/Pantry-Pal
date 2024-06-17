@@ -361,6 +361,14 @@ export default function NewCalendar({}: Props) {
 	return (
 		<>
 			<div className="lg:flex lg:h-full lg:flex-col">
+				<div className="border-b border-gray-700 pb-5">
+					<h3 className="text-base font-semibold leading-6 text-white">Meal Planner</h3>
+					<p className="mt-2 max-w-4xl text-sm text-gray-400">
+						This is where you will coordinate the meals for the month. Click on a day, then click the + button to assign a meal to that
+						day.
+					</p>
+				</div>
+
 				<header className="flex items-center justify-between px-6 py-4 lg:flex-none">
 					<h1 className="text-base font-semibold leading-6 text-white">
 						<time dateTime={`${currentYear}-${currentMonth + 1 < 10 ? "0" + String(currentMonth + 1) : String(currentMonth + 1)}`}>
