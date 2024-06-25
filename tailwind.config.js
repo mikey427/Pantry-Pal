@@ -4,12 +4,12 @@ module.exports = {
 	theme: {
 		extend: {
 			colors: {
-				primary: "#1A2130",
-				primaryLight: "#5A72A0",
-				accent: "#83B4FF",
-				accentLight: "#FDFFE2",
-				purple: "#4f46e6",
-				experi: "#ED6A5A"
+				primary: "#1d232a",
+				primaryLight: "#1f2937",
+				accent: "#4f46e6"
+				// accentLight: "#FDFFE2",
+				// purple: "#4f46e6",
+				// experi: "#ED6A5A"
 				// accentDark: "" LEFT OFF HERE RECOLORING APP COLORS NOT FINALIZED MAYBE USE CALENDAR COLORS FOR REST OF THE APP OR CHANGE COLORS ALTOGHETHER
 			}
 		}

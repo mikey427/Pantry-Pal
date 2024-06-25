@@ -56,7 +56,7 @@ export default function NewNavbar() {
 								<a
 									href="/"
 									className={` ${
-										currentTab === "" ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white"
+										currentTab === "" ? "bg-accent text-white cursor-default" : "text-gray-300 hover:bg-gray-700 hover:text-white"
 									} rounded-md px-3 py-2 text-sm font-medium`}
 									// aria-current="page"
 								>
@@ -65,7 +65,9 @@ export default function NewNavbar() {
 								<a
 									href="/meal_planner"
 									className={` ${
-										currentTab === "meal_planner" ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white"
+										currentTab === "meal_planner"
+											? "bg-accent text-white cursor-default"
+											: "text-gray-300 hover:bg-gray-700 hover:text-white"
 									} rounded-md px-3 py-2 text-sm font-medium`}
 								>
 									Meal Planner
@@ -73,7 +75,9 @@ export default function NewNavbar() {
 								<a
 									href="/ingredients"
 									className={` ${
-										currentTab === "ingredients" ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white"
+										currentTab === "ingredients"
+											? "bg-accent text-white cursor-default"
+											: "text-gray-300 hover:bg-gray-700 hover:text-white"
 									} rounded-md px-3 py-2 text-sm font-medium`}
 								>
 									Ingredients
@@ -81,7 +85,9 @@ export default function NewNavbar() {
 								<a
 									href="/shopping_list"
 									className={` ${
-										currentTab === "shopping_list" ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white"
+										currentTab === "shopping_list"
+											? "bg-accent text-white cursor-default"
+											: "text-gray-300 hover:bg-gray-700 hover:text-white"
 									} rounded-md px-3 py-2 text-sm font-medium`}
 								>
 									Shopping List
@@ -89,7 +95,9 @@ export default function NewNavbar() {
 								<a
 									href="/saved_meals"
 									className={` ${
-										currentTab === "saved_meals" ? "bg-gray-900 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white"
+										currentTab === "saved_meals"
+											? "bg-accent text-white cursor-default"
+											: "text-gray-300 hover:bg-gray-700 hover:text-white"
 									} rounded-md px-3 py-2 text-sm font-medium`}
 								>
 									Saved Meals

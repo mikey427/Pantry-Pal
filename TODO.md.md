@@ -8,3 +8,6 @@
 [] Convert to NextJS
 [] Have Mark review my code
 [] Add animations
+
+Ingredients:
+[] Fix dragging and dropping bugs (related to id's of categories & foods)

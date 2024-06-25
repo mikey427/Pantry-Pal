@@ -8,6 +8,7 @@ import Droppable from "./Droppable";
 import ExpandIcon from "../SVGs/ExpandIcon";
 import CollapseIcon from "../SVGs/CollapseIcon";
 import LockIcon from "../SVGs/LockIcon";
+import Button from "./Button";
 
 // interface Category {
 //     id: number;
@@ -235,6 +236,52 @@ export default function IngredientAccordion() {
 		updateLocalData("ingredients", categories);
 	};
 
+	const handleNewCategory = () => {
+		// console.log(categories[0]);
+		let temp: Category;
+		if (!categories[0]) {
+			temp = {
+				id: 0,
+				name: "Category " + "0",
+				foods: [
+					{
+						id: 1,
+						name: "Food 1",
+						quantity: 1,
+						category: "Category 0"
+					},
+					{
+						id: 2,
+						name: "Food 2",
+						quantity: 2,
+						category: "Category 0"
+					}
+				]
+			};
+		} else {
+			temp = {
+				id: categories[categories.length - 1].id + 1,
+				name: "Category " + (Number(categories[categories.length - 1].id) + 1),
+				foods: [
+					{
+						id: 1,
+						name: "Food 1",
+						quantity: 1,
+						category: "Category " + (categories[categories.length - 1].id + 1)
+					},
+					{
+						id: 2,
+						name: "Food 2",
+						quantity: 2,
+						category: "Category " + (categories[categories.length - 1].id + 1)
+					}
+				]
+			};
+		}
+		setCategories([...categories, temp]);
+		updateLocalData("ingredients", categories);
+	};
+
 	useEffect(() => {
 		setCategories(retrieveLocalData("ingredients"));
 		console.log("useeffect one");
@@ -285,7 +332,7 @@ export default function IngredientAccordion() {
 						Expand All
 					</button> */}
 					<button
-						className="btn bg-purple hover:bg-indigo-900 text-white px-4 py-2 rounded-md mb-4 mr-3"
+						className="btn bg-accent hover:bg-indigo-800 text-white px-4 py-2 rounded-md mb-4 mr-3"
 						onClick={() => {
 							setCategories(
 								categories.map(category => ({
@@ -305,7 +352,7 @@ export default function IngredientAccordion() {
 					</button>
 				</div>
 				<div className="flex">
-					<button
+					{/* <button
 						className="btn bg-purple text-white px-4 py-2 mb-4 mr-3"
 						onClick={() => {
 							// console.log(categories[0]);
@@ -319,13 +366,13 @@ export default function IngredientAccordion() {
 											id: 1,
 											name: "Food 1",
 											quantity: 1,
-											category: "Category 1"
+											category: "Category 0"
 										},
 										{
 											id: 2,
 											name: "Food 2",
 											quantity: 2,
-											category: "Category 1"
+											category: "Category 0"
 										}
 									]
 								};
@@ -354,7 +401,8 @@ export default function IngredientAccordion() {
 						}}
 					>
 						New Category
-					</button>
+					</button> */}
+					<Button callback={handleNewCategory} text="New Category" />
 					{/* <button
                         className="text-white px-4 py-2 rounded-md mb-4 mr-3 bg-blue-500"
                         onClick={() => {

@@ -135,8 +135,8 @@ const ShoppingList: React.FC = () => {
 	};
 
 	return (
-		<div className="min-h-screen bg-gray-100 flex flex-col items-center">
-			<div className="bg-white shadow-md rounded-md p-8 mt-24">
+		<div className="min-h-screen bg-primary flex flex-col items-center">
+			<div className="bg-primaryLight shadow-md rounded-md p-8 mt-24">
 				<h1 className="text-3xl font-bold mb-6">Shopping List</h1>
 				<form onSubmit={addListing} className="flex mb-4">
 					{/* <input
@@ -150,7 +150,7 @@ const ShoppingList: React.FC = () => {
 						type="text"
 						value={input}
 						placeholder="Add new item"
-						className="input input-bordered w-full max-w-xs mr-2"
+						className="input input-bordered w-full max-w-xs mr-2 "
 						onChange={event => setInput(event.target.value)}
 					/>
 					{/* <select
@@ -182,7 +182,7 @@ const ShoppingList: React.FC = () => {
 							</option>
 						))}
 					</select>
-					<button type="submit" className=" btn bg-blue-500 text-white">
+					<button type="submit" className="btn bg-accent text-white px-4 py-2 mb-4 mr-3 border-0">
 						Add
 					</button>
 				</form>
