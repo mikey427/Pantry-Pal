@@ -17,3 +17,5 @@ Account Settings: Offer options for managing user accounts, including profile in
 Data Syncing: Implement synchronization options for syncing meal data across multiple devices, ensuring consistency and accessibility from anywhere.
 
 Feedback and Support: Provide a section where users can submit feedback, report issues, or request assistance, improving user engagement and satisfaction.
+
+Adjust interval in which the shopping list will generate for you (ex. all the needed ingredients for the next week of meals or next 2 weeks of meals)

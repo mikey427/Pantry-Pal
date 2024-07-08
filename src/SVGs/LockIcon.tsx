@@ -7,7 +7,6 @@ type Props = {
 };
 
 export default function LockIcon({ className, state, onClick }: Props) {
-	console.log("state ", state);
 	return state == "unlocked" ? (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"

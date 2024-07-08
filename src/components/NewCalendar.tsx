@@ -355,18 +355,24 @@ export default function NewCalendar({}: Props) {
 		return month === otherMonth;
 	}
 
+	useEffect(() => {
+		console.log("selectedDay ", selectedDay);
+	}, [selectedDay])
+
 	// Usage
 	const calendarData = getCalendarMonth(2024, 2); // May 2024
 	// console.log(calendarData);
 	return (
 		<>
 			<div className="lg:flex lg:h-full lg:flex-col">
-				<div className="border-b border-gray-700 pb-5">
-					<h3 className="text-base font-semibold leading-6 text-white">Meal Planner</h3>
-					<p className="mt-2 max-w-4xl text-sm text-gray-400">
-						This is where you will coordinate the meals for the month. Click on a day, then click the + button to assign a meal to that
-						day.
-					</p>
+				<div className="w-3/4 mx-auto">
+					<div className="w-full mx-auto border-b border-gray-700 pb-5">
+						<h3 className="text-base font-semibold leading-6 text-white">Meal Planner</h3>
+						<p className="mt-2 text-sm text-gray-400">
+							This is where you will coordinate the meals for the month. Click on a day, then click the + button to assign a meal to
+							that day.
+						</p>
+					</div>
 				</div>
 
 				<header className="flex items-center justify-between px-6 py-4 lg:flex-none">

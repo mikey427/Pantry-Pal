@@ -74,13 +74,18 @@
 import React, { useState, useEffect } from "react";
 import { retrieveLocalData, updateLocalData } from "../utils";
 import { ListItem } from "../types";
+import Button from "./Button";
+import DecrementIcon from "../SVGs/DecrementIcon";
+import IncrementIcon from "../SVGs/IncrementIcon";
 
 // interface ListItem {
 //     name: string;
 //     quantity: number;
 // }
 
-const ShoppingList: React.FC = () => {
+type Props = {};
+
+export default function ShoppingList({}: Props) {
 	const [list, setList] = useState<ListItem[]>([]);
 	const [input, setInput] = useState<string>("");
 	const [quantity, setQuantity] = useState<number>(1);
@@ -137,7 +142,7 @@ const ShoppingList: React.FC = () => {
 	return (
 		<div className="min-h-screen bg-primary flex flex-col items-center">
 			<div className="bg-primaryLight shadow-md rounded-md p-8 mt-24">
-				<h1 className="text-3xl font-bold mb-6">Shopping List</h1>
+				<h1 className="text-3xl font-bold mb-6 text-white">Shopping List</h1>
 				<form onSubmit={addListing} className="flex mb-4">
 					{/* <input
 						type="text"
@@ -149,8 +154,8 @@ const ShoppingList: React.FC = () => {
 					<input
 						type="text"
 						value={input}
-						placeholder="Add new item"
-						className="input input-bordered w-full max-w-xs mr-2 "
+						placeholder="Item"
+						className="input input-bordered w-full md:max-w-xs mr-2 "
 						onChange={event => setInput(event.target.value)}
 					/>
 					{/* <select
@@ -169,7 +174,7 @@ const ShoppingList: React.FC = () => {
 						))}
 					</select> */}
 					<select
-						className="select select-bordered w-full max-w-xs mr-2"
+						className="select select-bordered w-16 md:w-full md:max-w-xs mr-2"
 						value={quantity}
 						onChange={event => setQuantity(Number(event.target.value))}
 					>
@@ -182,13 +187,15 @@ const ShoppingList: React.FC = () => {
 							</option>
 						))}
 					</select>
-					<button type="submit" className="btn bg-accent text-white px-4 py-2 mb-4 mr-3 border-0">
+					{/* <button type="submit" className="btn bg-accent text-white px-4 py-2 mb-4 mr-3 border-0">
 						Add
-					</button>
+					</button> */}
+					<Button isSubmit={true} text="Add" />
 				</form>
-				<button onClick={clearList} className="btn bg-red-500 text-white">
+				{/* <button onClick={clearList} className="btn bg-red-500 text-white">
 					Clear List
-				</button>
+				</button> */}
+				<Button text="Clear List" callback={clearList} styles="bg-red-500 hover:bg-red-800 text-white" />
 				<ul className="mt-6">
 					{list.map((item, idx) => (
 						<li key={idx} className="flex justify-between items-center py-2">
@@ -202,7 +209,7 @@ const ShoppingList: React.FC = () => {
                                 >
                                     -
                                 </button> */}
-								<svg
+								{/* <svg
 									className="bg-red-500 cursor-pointer fill-white mx-1 rounded-md text-xs font-bold"
 									onClick={event => {
 										event.stopPropagation();
@@ -214,7 +221,13 @@ const ShoppingList: React.FC = () => {
 									width="24"
 								>
 									<path d="M200-440v-80h560v80H200Z" />
-								</svg>
+								</svg> */}
+								<DecrementIcon
+									onClick={event => {
+										event.stopPropagation();
+										handleDecrementQuantity(idx);
+									}}
+								/>
 								{/* <button
                                     className="bg-green-500 text-white px-2 py-1 mx-1 rounded-md text-xs font-bold mr-1"
                                     onClick={(event) => {
@@ -224,7 +237,7 @@ const ShoppingList: React.FC = () => {
                                 >
                                     +
                                 </button> */}
-								<svg
+								{/* <svg
 									className="bg-green-500 cursor-pointer text-white fill-white mx-1 rounded-md mr-1"
 									onClick={event => {
 										event.stopPropagation();
@@ -236,7 +249,13 @@ const ShoppingList: React.FC = () => {
 									width="24"
 								>
 									<path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
-								</svg>
+								</svg> */}
+								<IncrementIcon
+									onClick={event => {
+										event.stopPropagation();
+										handleIncrementQuantity(idx);
+									}}
+								/>
 								<span className=" ml-4 w-28">
 									{item.name}: {item.quantity}
 								</span>
@@ -250,6 +269,4 @@ const ShoppingList: React.FC = () => {
 			</div>
 		</div>
 	);
-};
-
-export default ShoppingList;
+}

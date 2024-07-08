@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { retrieveLocalData, updateLocalData } from "../utils";
 import { Meal } from "../types";
+import PageHeader from "../components/PageHeader";
+import Button from "../components/Button";
 
 // interface Meal {
 //     id: string;
@@ -8,7 +10,9 @@ import { Meal } from "../types";
 //     ingredients: string[];
 // }
 
-const SavedMeals: React.FC = () => {
+type Props = {};
+
+export default function SavedMeals({}: Props) {
 	const [meals, setMeals] = useState<Meal[]>([
 		{
 			id: "1",
@@ -24,7 +28,7 @@ const SavedMeals: React.FC = () => {
 	const [mealNameInput, setMealNameInput] = useState("");
 	const [selectedIngredientIndex, setSelectedIngredientIndex] = useState<number | null>(null);
 	const [editing, setEditing] = useState(false);
-	const [viewMode, setViewMode] = useState("grid"); // list or grid
+	const [viewMode, setViewMode] = useState("list"); // list or grid
 
 	useEffect(() => {
 		const savedMeals = retrieveLocalData("savedMeals") || [];
@@ -78,11 +82,34 @@ const SavedMeals: React.FC = () => {
 		setMeals(updatedMeals);
 		updateLocalData("savedMeals", updatedMeals);
 	};
+	const toggleViewMode = () => {
+		setViewMode(viewMode === "list" ? "grid" : "list");
+	};
+	const addOrEditMeal = (event: React.FormEvent) => {
+		event.preventDefault();
+		modalData
+			? editMeal({
+					id: modalData.id,
+					name: mealNameInput,
+					ingredients: ingredients
+			  })
+			: addMeal({
+					id: String(meals.length + 1),
+					name: mealNameInput,
+					ingredients: ingredients
+			  });
+		setIngredients([]);
+		setIngredientInput("");
+		setMealNameInput("");
+	};
 
 	return (
-		<div className="container mx-auto px-4 py-8">
-			<h1 className="text-3xl font-bold mb-6">Saved Meals</h1>
-			<div className="mb-4 flex justify-between ">
+		<div className="container mx-auto px-4 py-8 text-gray-700">
+			<PageHeader
+				title="Saved Meals"
+				description="This is where you can view, edit, and delete your saved meals which can be scheduled as a meal on the Meal Planner."
+			/>
+			<div className="mb-4 flex justify-between w-full">
 				<input
 					type="text"
 					value={searchTerm}
@@ -90,21 +117,28 @@ const SavedMeals: React.FC = () => {
 					placeholder="Search meals"
 					className="input input-bordered w-full max-w-xs rounded-md"
 				/>
-				<button onClick={() => setViewMode(viewMode === "list" ? "grid" : "list")} className="btn bg-blue-500 text-white">
+				{/* <button onClick={() => setViewMode(viewMode === "list" ? "grid" : "list")} className="btn bg-blue-500 text-white">
 					View Mode: {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}
-				</button>
+				</button> */}
+				<Button
+					callback={toggleViewMode}
+					styles="btn text-white ml-1 hidden md:block"
+					text={`View Mode: ${viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}`}
+				/>
 			</div>
 			{viewMode === "grid" ? (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{filteredMeals.map(meal => (
 						<div key={meal.id + 1} className="bg-white shadow-md rounded-md p-4">
 							<h2 className="text-xl font-bold mb-2">{meal.name}</h2>
-							<button onClick={() => openModal(meal)} className="btn bg-blue-500 text-white mr-2">
+							{/* <button onClick={() => openModal(meal)} className="btn bg-blue-500 text-white mr-2">
 								View/Edit
-							</button>
-							<button onClick={() => deleteMeal(meal.id)} className="btn bg-red-500 text-white">
+							</button> */}
+							<Button callback={() => openModal(meal)} styles="text-white mr-2 border-0" text="View/Edit" />
+							<Button callback={() => deleteMeal(meal.id)} styles={"text-white border-0"} text="Delete" />
+							{/* <button onClick={() => deleteMeal(meal.id)} className="btn bg-red-500 text-white">
 								Delete
-							</button>
+							</button> */}
 						</div>
 					))}
 				</div>
@@ -114,12 +148,14 @@ const SavedMeals: React.FC = () => {
 						<div key={meal.id + 1} className="bg-white shadow-md rounded-md p-2 flex items-center justify-between mb-2">
 							<h2 className="text-xl font-bold">{meal.name}</h2>
 							<div>
-								<button onClick={() => openModal(meal)} className="btn bg-blue-500 text-white mr-2">
+								{/* <button onClick={() => openModal(meal)} className="btn bg-blue-500 text-white mr-2">
 									View/Edit
-								</button>
-								<button onClick={() => deleteMeal(meal.id)} className="btn bg-red-500 text-white">
+								</button> */}
+								<Button callback={() => openModal(meal)} styles="text-white mr-2 border-0 mb-0" text="View/Edit" />
+								<Button callback={() => deleteMeal(meal.id)} styles={"text-white border-0 mb-0"} text="Delete" />
+								{/* <button onClick={() => deleteMeal(meal.id)} className="btn bg-red-500 text-white">
 									Delete
-								</button>
+								</button> */}
 							</div>
 						</div>
 					))}
@@ -213,7 +249,7 @@ const SavedMeals: React.FC = () => {
 							</div>
 
 							<div className="flex justify-end">
-								<button
+								{/* <button
 									className="btn mr-2 bg-blue-500 text-white"
 									type="submit"
 									onClick={event => {
@@ -235,10 +271,12 @@ const SavedMeals: React.FC = () => {
 									}}
 								>
 									{modalData ? "Save Meal" : "Add Meal"}
-								</button>
-								<button className="btn bg-red-500 text-white" onClick={closeModal}>
+								</button> */}
+								<Button callback={addOrEditMeal} isSubmit={true} styles="mr-2" text={modalData ? "Save Meal" : "Add Meal"} />
+								{/* <button className="btn bg-red-500 text-white" onClick={closeModal}>
 									Cancel
-								</button>
+								</button> */}
+								<Button callback={closeModal} styles="bg-red-500 text-white" text="Cancel" />
 							</div>
 						</form>
 						{/* <button onClick={closeModal} className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white px-2 py-1 rounded">X</button> */}
@@ -257,11 +295,10 @@ const SavedMeals: React.FC = () => {
 					</div>
 				</div>
 			)}
-			<button onClick={() => openModal()} className="btn fixed bottom-4 right-4 bg-blue-500 text-white">
+			{/* <button onClick={() => openModal()} className="btn fixed bottom-4 right-4 bg-blue-500 text-white">
 				Add Meal
-			</button>
+			</button> */}
+			<Button callback={openModal} styles="btn fixed bottom-4 right-4 text-white" text="Add Meal" />
 		</div>
 	);
-};
-
-export default SavedMeals;
+}
