@@ -7,7 +7,7 @@ import Ingredients from "./Pages/Ingredients";
 import ShoppingList from "./Pages/ShoppingListPage";
 import SavedMeals from "./Pages/SavedMeals";
 import { ThemeProvider } from "./components/ThemeProvider";
-import NewNavbar from "./components/NewNavbar";
+import NewNavbar from "./components/Navbar";
 
 function App() {
 	return (

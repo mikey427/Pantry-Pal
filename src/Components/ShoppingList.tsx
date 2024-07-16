@@ -1,87 +1,9 @@
-// import React, { useState, useEffect } from 'react'
-// import { retrieveLocalData, updateLocalData } from '../utils';
-
-// type Props = {}
-
-// interface ListItem {
-//     "name": string;
-//     "quantity": number;
-// }
-
-// interface List extends Array<ListItem> { }
-
-// export default function ShoppingList({ }: Props) {
-//     const [list, setList] = useState<List>([]);
-//     const [input, setInput] = useState("");
-//     const [quantity, setQuantity] = useState(1);
-
-//     function addListing(event: any): void {
-//         event.preventDefault();
-//         let temp: List = [...list];
-//         let tempObj: ListItem = {
-//             "name": input,
-//             "quantity": quantity,
-//         }
-
-//         temp.push(tempObj);
-//         console.log(temp)
-//         setList([...temp]);
-//         setInput("");
-//         setQuantity(1);
-//         updateLocalData("shoppingList", list);
-//     }
-
-//     useEffect(() => {
-//         setList(retrieveLocalData("shoppingList"))
-//     }, [])
-
-//     return (
-//         <div className='flex flex-col'>
-//             {list.map((item: ListItem, idx: number) => {
-//                 return (<div key={idx}>{item.name}: {item.quantity}</div>)
-//             })}
-//             <form className='flex'>
-//                 <input value={input} className='border border-black' onChange={(event) => {
-//                     setInput(event.target.value)
-//                 }} />
-//                 <select id="amount" name="quantity" value={quantity} onChange={(event) => {
-//                     setQuantity(Number(event.target.value));
-//                     console.log(quantity);
-//                 }}>
-//                     <option value="1">1</option>
-//                     <option value="2">2</option>
-//                     <option value="3">3</option>
-//                     <option value="4">4</option>
-//                     <option value="5">5</option>
-//                     <option value="6">6</option>
-//                     <option value="7">7</option>
-//                     <option value="8">8</option>
-//                     <option value="9">9</option>
-//                     <option value="10">10</option>
-//                 </select>
-//                 <div>
-//                     <button type="submit" className='' onClick={(event) => { addListing(event) }}>Add</button>
-//                     <button className='' onClick={(event) => {
-//                         updateLocalData("shoppingList", JSON.stringify(list))
-//                     }}></button>
-//                 </div>
-
-//             </form>
-//         </div>
-//     )
-// }
-
 import React, { useState, useEffect } from "react";
 import { retrieveLocalData, updateLocalData } from "../utils";
 import { ListItem } from "../types";
 import Button from "./Button";
 import DecrementIcon from "../SVGs/DecrementIcon";
 import IncrementIcon from "../SVGs/IncrementIcon";
-
-// interface ListItem {
-//     name: string;
-//     quantity: number;
-// }
 
 type Props = {};
 
@@ -144,13 +66,6 @@ export default function ShoppingList({}: Props) {
 			<div className="bg-primaryLight shadow-md rounded-md p-8 mt-24">
 				<h1 className="text-3xl font-bold mb-6 text-white">Shopping List</h1>
 				<form onSubmit={addListing} className="flex mb-4">
-					{/* <input
-						type="text"
-						value={input}
-						className="flex-grow mr-2 border border-gray-300 p-2 rounded"
-						onChange={event => setInput(event.target.value)}
-						placeholder="Add new item"
-					/> */}
 					<input
 						type="text"
 						value={input}
@@ -158,98 +73,31 @@ export default function ShoppingList({}: Props) {
 						className="input input-bordered w-full md:max-w-xs mr-2 "
 						onChange={event => setInput(event.target.value)}
 					/>
-					{/* <select
-						id="amount"
-						name="quantity"
-						value={quantity}
-						onChange={event =>
-							setQuantity(Number(event.target.value))
-						}
-						className="border border-gray-300 p-2 rounded"
-					>
-						{[...Array(10)].map((_, index) => (
-							<option key={index} value={index + 1}>
-								{index + 1}
-							</option>
-						))}
-					</select> */}
 					<select
 						className="select select-bordered w-16 md:w-full md:max-w-xs mr-2"
 						value={quantity}
 						onChange={event => setQuantity(Number(event.target.value))}
 					>
-						<option disabled selected>
-							Quantity
-						</option>
+						<option disabled>Quantity</option>
 						{[...Array(10)].map((_, index) => (
 							<option key={index} value={index + 1}>
 								{index + 1}
 							</option>
 						))}
 					</select>
-					{/* <button type="submit" className="btn bg-accent text-white px-4 py-2 mb-4 mr-3 border-0">
-						Add
-					</button> */}
 					<Button isSubmit={true} text="Add" />
 				</form>
-				{/* <button onClick={clearList} className="btn bg-red-500 text-white">
-					Clear List
-				</button> */}
 				<Button text="Clear List" callback={clearList} styles="bg-red-500 hover:bg-red-800 text-white" />
 				<ul className="mt-6">
 					{list.map((item, idx) => (
 						<li key={idx} className="flex justify-between items-center py-2">
 							<span className="flex">
-								{/* <button
-                                    className="bg-red-500 text-white px-2 py-1 mx-1 rounded-md text-xs font-bold"
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        handleDecrementQuantity(idx);
-                                    }}
-                                >
-                                    -
-                                </button> */}
-								{/* <svg
-									className="bg-red-500 cursor-pointer fill-white mx-1 rounded-md text-xs font-bold"
-									onClick={event => {
-										event.stopPropagation();
-										handleDecrementQuantity(idx);
-									}}
-									xmlns="http://www.w3.org/2000/svg"
-									height="24"
-									viewBox="0 -960 960 960"
-									width="24"
-								>
-									<path d="M200-440v-80h560v80H200Z" />
-								</svg> */}
 								<DecrementIcon
 									onClick={event => {
 										event.stopPropagation();
 										handleDecrementQuantity(idx);
 									}}
 								/>
-								{/* <button
-                                    className="bg-green-500 text-white px-2 py-1 mx-1 rounded-md text-xs font-bold mr-1"
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        handleIncrementQuantity(idx);
-                                    }}
-                                >
-                                    +
-                                </button> */}
-								{/* <svg
-									className="bg-green-500 cursor-pointer text-white fill-white mx-1 rounded-md mr-1"
-									onClick={event => {
-										event.stopPropagation();
-										handleIncrementQuantity(idx);
-									}}
-									xmlns="http://www.w3.org/2000/svg"
-									height="24"
-									viewBox="0 -960 960 960"
-									width="24"
-								>
-									<path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
-								</svg> */}
 								<IncrementIcon
 									onClick={event => {
 										event.stopPropagation();

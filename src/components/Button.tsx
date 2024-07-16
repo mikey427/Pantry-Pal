@@ -24,8 +24,8 @@ export default function Button({ callback, text, styles, isSubmit, defaultBtn = 
 			type={isSubmit ? "submit" : "button"}
 			className={
 				defaultBtn
-					? `btn bg-accent hover:bg-indigo-800 text-white px-4 py-2 rounded-md mb-4 mr-3 ${styles} `
-					: `btn bg-accent text-white px-4 py-2 rounded-md mb-4 mr-3 ${styles} `
+					? `btn bg-accent hover:bg-indigo-800 text-white px-4 py-2 rounded-md ${styles} `
+					: `btn bg-accent text-white px-4 py-2 rounded-md ${styles} `
 			}
 			onClick={event => {
 				if (callback) {
@@ -37,3 +37,7 @@ export default function Button({ callback, text, styles, isSubmit, defaultBtn = 
 		</button>
 	);
 }
+
+// Old styles: btn bg-accent hover:bg-indigo-800 text-white px-4 py-2 rounded-md mb-4 mr-3
+// If i run into buttons looking weird, add the following to the button className: mb-4 mr-3
+// New: btn bg-accent hover:bg-indigo-800 text-white px-4 py-2 rounded-md

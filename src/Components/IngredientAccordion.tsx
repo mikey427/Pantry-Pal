@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { retrieveLocalData, updateLocalData } from "../utils";
 import { Category, Food } from "../types";
 import { DndContext } from "@dnd-kit/core";
@@ -9,13 +9,6 @@ import ExpandIcon from "../SVGs/ExpandIcon";
 import CollapseIcon from "../SVGs/CollapseIcon";
 import LockIcon from "../SVGs/LockIcon";
 import Button from "./Button";
-
-// interface Category {
-//     id: number;
-//     name: string;
-//     foods: string[];
-//     isOpen?: boolean;
-// }
 
 export default function IngredientAccordion() {
 	const [categories, setCategories] = useState<Category[]>([
@@ -55,7 +48,6 @@ export default function IngredientAccordion() {
 				}
 			]
 		}
-		// Add more categories as needed
 	]);
 	const [input, setInput] = useState("");
 	const [selected, setSelected] = useState("");
@@ -64,28 +56,8 @@ export default function IngredientAccordion() {
 	const [target, setTarget] = useState(null);
 	const [foodDragged, setFoodDragged] = useState<string | null>(null);
 	const [prevCategory, setPrevCategory] = useState<number | null>(null);
-	// const [areAllCategoriesOpen, setAreAllCategoriesOpen] = useState(false);
-	// const [areAllCategoriesClosed, setAreAllCategoriesClosed] = useState(false);
 	const [allCategoriesOpen, setAllCategoriesOpen] = useState(categories.every(category => category.isOpen));
 	const [unsavedChanges, setUnsavedChanges] = useState<Boolean | null>(null);
-
-	// // Function to retrieve planned meals data from local storage
-	// const retrieveLocalData = (): void => {
-	//     let data: any = localStorage.getItem("ingredients");
-	//     // If data not found in local storage, initialize it with empty strings
-	//     if (!data) {
-	//         localStorage.setItem("ingredients", JSON.stringify(categories));
-	//         setCategories([...categories]);
-	//     } else {
-	//         // If data found in local storage, set plannedMeals state with retrieved data
-	//         setCategories(JSON.parse(data));
-	//     }
-	// }
-
-	// Function to update planned meals data in local storage
-	// const updateLocalData = (): void => {
-	//     localStorage.setItem("ingredients", JSON.stringify(categories));
-	// }
 
 	const toggleAccordion = (categoryId: number) => {
 		setCategories(
@@ -115,19 +87,13 @@ export default function IngredientAccordion() {
 	// This function will remove the food from the current category it is in, and will add it to the category it is dropped in
 	const handleDragEnd = (event: any) => {
 		const { over } = event;
-		console.log("over", over);
 		if (over) {
 			let temp: Category[] = [...categories];
 			let newCatIndex: number = categories.findIndex(category => category.id === over.id);
 			let oldCatIndex: number | null = prevCategory;
-			console.log("oldCatIndex", oldCatIndex);
 
 			if (oldCatIndex !== null && oldCatIndex !== newCatIndex) {
 				// oldCatIndex--;
-				console.log("oldCatIndex", oldCatIndex);
-				console.log("categories[oldCatIndex]", categories[oldCatIndex]);
-				console.log("categories", categories);
-
 				let foodIndex: number = categories[oldCatIndex].foods.findIndex(food => food?.name === foodDragged);
 				temp[newCatIndex].foods.push(categories[oldCatIndex].foods[foodIndex]);
 				temp[oldCatIndex].foods.splice(foodIndex, 1);
@@ -136,38 +102,15 @@ export default function IngredientAccordion() {
 		}
 	};
 
-	// const handleDrop = (event: any) => {
-	// 	// const foodName = event.dataTransfer.getData("text/plain");
-	// 	// console.log("foodName", foodName);
-	// 	// const foodIndex = categories[index].foods.findIndex(food => food.name === foodName);
-	// 	// handle drop logic here
-	// };
-
 	function handleDragStart(event: any) {
 		const category = categories.find((category: Category) =>
 			category.foods.some(food => food.name === event.active.id.substring(event.active.id.indexOf(" ") + 1))
 		);
-		console.log("id", event.active.id);
-		console.log("category", category);
 		if (category) {
-			// console.log("category.id", category.id);
 			setPrevCategory(category.id);
 		}
-		console.log(event.active.id.substring(event.active.id.indexOf(" ") + 1));
 		setFoodDragged(event.active.id.substring(event.active.id.indexOf(" ") + 1));
 	}
-	// function handleDragStart(event: any) {
-	// 	const [categoryIndex, foodId] = event.active.id.split("-");
-	// 	const category = categories[categoryIndex];
-	// 	console.log("category", category);
-	// 	if (category) {
-	// 		setPrevCategory(category.id);
-	// 	}
-	// 	const food = category.foods.find(food => food.id === foodId);
-	// 	if (food) {
-	// 		setFoodDragged(food.name);
-	// 	}
-	// }
 
 	const handleFoodEdit = (event: any, categoryIndex: number, food: string): void => {
 		let temp: Category[] = [...categories];
@@ -237,7 +180,6 @@ export default function IngredientAccordion() {
 	};
 
 	const handleNewCategory = () => {
-		// console.log(categories[0]);
 		let temp: Category;
 		if (!categories[0]) {
 			temp = {
@@ -284,53 +226,16 @@ export default function IngredientAccordion() {
 
 	useEffect(() => {
 		setCategories(retrieveLocalData("ingredients"));
-		console.log("useeffect one");
 	}, []);
 	useEffect(() => {
 		setAllCategoriesOpen(categories.every(category => category.isOpen));
 		setUnsavedChanges(true);
-		console.log("categories updated");
-		console.log(unsavedChanges);
 	}, [categories]);
-
-	// useEffect(() => {
-	// 	if (categories.every(category => category.isOpen)) {
-	// 		setAreAllCategoriesOpen(true);
-	// 	} else if (categories.every(category => !category.isOpen)) {
-	// 		setAreAllCategoriesClosed(true);
-	// 	}
-	// }, [categories]);
 
 	return (
 		<div className="w-full">
 			<div className="flex justify-between">
 				<div className="flex">
-					{/* <button
-						className="bg-blue-500 text-white px-4 py-2 rounded-md mb-4 mr-3"
-						onClick={() => {
-							setCategories(
-								categories.map(category => ({
-									...category,
-									isOpen: true
-								}))
-							);
-						}}
-					>
-						Expand All
-					</button> */}
-					{/* <button
-						className="btn bg-blue-500 text-white px-4 py-2 rounded-md mb-4 mr-3"
-						onClick={() => {
-							setCategories(
-								categories.map(category => ({
-									...category,
-									isOpen: true
-								}))
-							);
-						}}
-					>
-						Expand All
-					</button> */}
 					<button
 						className="btn bg-accent hover:bg-indigo-800 text-white px-4 py-2 rounded-md mb-4 mr-3"
 						onClick={() => {
@@ -340,89 +245,13 @@ export default function IngredientAccordion() {
 									isOpen: allCategoriesOpen ? false : true
 								}))
 							);
-							// if (categories.every(category => category.isOpen)) {
-							// 	setAreAllCategoriesOpen(true);
-							// } else if (categories.every(category => !category.isOpen)) {
-							// 	setAllCategoriesOpen(false);
-							// }
 						}}
 					>
-						{/* {`${categories[0].isOpen ? "Collapse" : "Expand"} All`} */}
 						{allCategoriesOpen ? <CollapseIcon /> : <ExpandIcon />}
 					</button>
 				</div>
 				<div className="flex">
-					{/* <button
-						className="btn bg-purple text-white px-4 py-2 mb-4 mr-3"
-						onClick={() => {
-							// console.log(categories[0]);
-							let temp: Category;
-							if (!categories[0]) {
-								temp = {
-									id: 0,
-									name: "Category " + "0",
-									foods: [
-										{
-											id: 1,
-											name: "Food 1",
-											quantity: 1,
-											category: "Category 0"
-										},
-										{
-											id: 2,
-											name: "Food 2",
-											quantity: 2,
-											category: "Category 0"
-										}
-									]
-								};
-							} else {
-								temp = {
-									id: categories[categories.length - 1].id + 1,
-									name: "Category " + (Number(categories[categories.length - 1].id) + 1),
-									foods: [
-										{
-											id: 1,
-											name: "Food 1",
-											quantity: 1,
-											category: "Category " + (categories[categories.length - 1].id + 1)
-										},
-										{
-											id: 2,
-											name: "Food 2",
-											quantity: 2,
-											category: "Category " + (categories[categories.length - 1].id + 1)
-										}
-									]
-								};
-							}
-							setCategories([...categories, temp]);
-							updateLocalData("ingredients", categories);
-						}}
-					>
-						New Category
-					</button> */}
 					<Button callback={handleNewCategory} text="New Category" />
-					{/* <button
-                        className="text-white px-4 py-2 rounded-md mb-4 mr-3 bg-blue-500"
-                        onClick={() => {
-                            updateLocalData("ingredients", categories);
-                        }}
-                    >
-                        Save Data
-                    </button> */}
-					{/* <svg
-						className="text-white fill-white bg-blue-500 cursor-pointer rounded-md w-12 h-12"
-						xmlns="http://www.w3.org/2000/svg"
-						height="24"
-						viewBox="0 -960 960 960"
-						width="24"
-						onClick={() => {
-							updateLocalData("ingredients", categories);
-						}}
-					>
-						<path d="M840-680v480q0 33-23.5 56.5T760-120H200q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h480l160 160Zm-80 34L646-760H200v560h560v-446ZM480-240q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35ZM240-560h360v-160H240v160Zm-40-86v446-560 114Z" />
-					</svg> */}
 					<LockIcon
 						className="w-12 h-12 my-auto mb-4 ml-3"
 						state={unsavedChanges ? "unlocked" : "locked"}
@@ -435,7 +264,6 @@ export default function IngredientAccordion() {
 			</div>
 			<DndContext
 				onDragStart={event => {
-					console.log("on drag start");
 					handleDragStart(event);
 				}}
 				onDragEnd={handleDragEnd}
@@ -456,7 +284,6 @@ export default function IngredientAccordion() {
 							<div>
 								<span
 									onClick={event => {
-										console.log("here");
 										event.stopPropagation();
 										setInput(category.name);
 										setSelected(category.name);
@@ -487,58 +314,6 @@ export default function IngredientAccordion() {
 								</span>
 							</div>
 							<div className="flex items-center">
-								{/* {category.isOpen ? (
-									// <button className="bg-blue-500 text-white rounded-md my-auto mr-1 w-6 h-6 align-middle font-bold" onClick={(event) => {
-									//         event.stopPropagation();
-									//         handleAddFood(categoryIndex);
-									//     }}>
-									//     +
-									// </button>
-									<svg
-										className="bg-blue-500 cursor-pointer text-white fill-white mx-1 rounded-md mr-1"
-										onClick={event => {
-											event.stopPropagation();
-											handleAddFood(categoryIndex);
-										}}
-										xmlns="http://www.w3.org/2000/svg"
-										height="24"
-										viewBox="0 -960 960 960"
-										width="24"
-									>
-										<path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
-									</svg>
-								) : null} */}
-								{/* <button className="bg-red-500 text-white px-2 py-1 rounded-md my-auto text-xs w-6 h-6 font-bold" onClick={(event) => {
-                                    event.stopPropagation();
-                                    handleDeleteCategory(category.id);
-                                }}>
-                                    X
-                                </button> */}
-								{/* <svg
-									className="bg-red-500 cursor-pointer text-white fill-white rounded-md my-auto text-xs w-6 h-6 font-bold"
-									onClick={event => {
-										event.stopPropagation();
-										handleDeleteCategory(category.id);
-									}}
-									xmlns="http://www.w3.org/2000/svg"
-									height="24"
-									viewBox="0 -960 960 960"
-									width="24"
-								>
-									<path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
-								</svg> */}
-								{/* <svg
-									xmlns="http://www.w3.org/2000/svg"
-									fill="none"
-									viewBox="0 0 24 24"
-									strokeWidth={1.5}
-									stroke="currentColor"
-									className="cursor-pointer rounded-md my-auto text-xs w-5 h-5 font-bold"
-									onClick={event => {
-										event.stopPropagation();
-										handleDeleteCategory(category.id);
-									}}
-								></svg> */}
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									fill="none"
@@ -581,7 +356,6 @@ export default function IngredientAccordion() {
 											<div
 												className="flex justify-between align-middle my-1"
 												onClick={() => {
-													console.log("here");
 													if (selected !== food.name) {
 														setSelected(food.name);
 													} else {
@@ -590,19 +364,6 @@ export default function IngredientAccordion() {
 												}}
 											>
 												<div className="flex">
-													{/* <svg
-														className="bg-red-500 cursor-pointer text-white fill-white rounded-md my-auto text-xs w-6 h-6 font-bold"
-														onClick={event => {
-															event.stopPropagation();
-															handleDeleteFood(categoryIndex, foodIndex);
-														}}
-														xmlns="http://www.w3.org/2000/svg"
-														height="24"
-														viewBox="0 -960 960 960"
-														width="24"
-													>
-														<path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z" />
-													</svg> */}
 													<svg
 														xmlns="http://www.w3.org/2000/svg"
 														fill="none"
@@ -622,14 +383,7 @@ export default function IngredientAccordion() {
 														/>
 													</svg>
 
-													<span
-														className="my-auto mx-1 flex items-center w-32"
-														// onClick={() => {
-														// 	console.log("here");
-														// }}
-													>
-														{food.name}
-													</span>
+													<span>{food.name}</span>
 													{selected === food.name ? (
 														<form className="flex items-center">
 															<input
@@ -661,25 +415,6 @@ export default function IngredientAccordion() {
 													) : (
 														<form style={{ display: "none" }}></form>
 													)}
-													{/* <button
-                                                    className="bg-red-500 text-white px-2 py-1 mx-1 rounded-md text-xs font-bold"
-                                                    onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        handleDecrementQuantity(categoryIndex, foodIndex);
-                                                    }}
-                                                >
-                                                    -
-                                                </button> */}
-													{/* /// HEREEee */}
-													{/* <button
-                                                    className="bg-green-500 text-white px-2 py-1 mx-1 rounded-md text-xs font-bold mr-1"
-                                                    onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        handleIncrementQuantity(categoryIndex, foodIndex);
-                                                    }}
-                                                >
-                                                    +
-                                                </button> */}
 												</div>
 												<div className="flex justify-between w-28">
 													<svg
@@ -711,20 +446,9 @@ export default function IngredientAccordion() {
 													</svg>
 												</div>
 											</div>
-
-											{/* <button
-                                                className="bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold"
-                                                onClick={(event) => {
-                                                    event.stopPropagation();
-                                                    handleDeleteFood(categoryIndex, foodIndex);
-                                                }}
-                                            >
-                                                X
-                                            </button> */}
 										</Draggable>
 									))}
 								</ul>
-								{/* Add input fields here for editing category name and foods */}
 								<div className="flex self-center h-8 cursor-pointer">
 									<svg
 										xmlns="http://www.w3.org/2000/svg"

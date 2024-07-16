@@ -94,7 +94,6 @@ export default function NewCalendar({}: Props) {
 		// Update planned meal for the selected day
 		let temp: any = plannedMeals;
 		temp[Number(day)].name = input;
-		// console.log('event', event.target);
 
 		// Clear input field and hide the form
 		setInput("");
@@ -135,7 +134,6 @@ export default function NewCalendar({}: Props) {
 		while (allDays.length > 0) {
 			weeks.push(allDays.splice(0, 7));
 		}
-		console.log("weeks", weeks);
 		if (String(weeks[weeks.length - 1]) === String([1, 2, 3, 4, 5, 6, 7])) {
 			weeks.pop();
 		}
@@ -188,15 +186,12 @@ export default function NewCalendar({}: Props) {
 				const ingredientCategoryIndex = tempIngredients.findIndex(
 					(category: Category) => category.foods.find(food => food.name === ingredient)?.name === ingredient
 				);
-				// console.log("ingredientCategory", ingredientCategory);
 
 				if (ingredientCategoryIndex !== -1) {
 					const foodItemIndex = tempIngredients[ingredientCategoryIndex].foods.findIndex((food: Food) => food.name === ingredient);
 
 					if (foodItemIndex !== -1) {
-						// console.log(tempIngredients[ingredientCategoryIndex].foods[foodItemIndex].quantity);
 						tempIngredients[ingredientCategoryIndex].foods[foodItemIndex].quantity -= 1;
-						// console.log(tempIngredients[ingredientCategoryIndex].foods[foodItemIndex].quantity);
 						if (tempIngredients[ingredientCategoryIndex].foods[foodItemIndex].quantity === 0) {
 							// Remove the ingredient if the quantity is zero
 							tempIngredients[ingredientCategoryIndex].foods = tempIngredients[ingredientCategoryIndex].foods.filter(
@@ -205,7 +200,6 @@ export default function NewCalendar({}: Props) {
 						}
 					}
 				}
-				// console.log("tempIngredients", tempIngredients);
 				setIngredients(tempIngredients);
 				updateLocalData("ingredients", tempIngredients);
 			});
@@ -214,22 +208,18 @@ export default function NewCalendar({}: Props) {
 			updateLocalData(getMonthName(currentMonthIndex), tempPlannedMeals);
 		} else {
 			const mealIngredients = savedMeals.find(savedMeal => savedMeal.name === meal)?.ingredients;
-			// console.log("mealIngredients", mealIngredients);
 			let temp: any = [...ingredients];
 			mealIngredients?.forEach((ingredient, idx) => {
-				// console.log("ingredient", ingredient);
-				// console.log("ingredients", ingredients);
 				// grabs category of the ingredient, returns undefined if doesn't find it
 				const ingredientCategory = ingredients.find(category => category.foods.some(food => food.name === ingredient));
-				// console.log("ingredientCategory", ingredientCategory);
+
 				if (ingredientCategory !== undefined) {
 					const foodItem = ingredientCategory?.foods.find(food => food.name === ingredient);
-					// console.log("foodItem", foodItem);
+
 					if (foodItem) {
 						foodItem.quantity += 1;
 					}
 				} else {
-					// console.log("here");
 					//if ingredient category is undefined
 					let unCatIndex: number;
 					if (idx === 0) {
@@ -237,9 +227,6 @@ export default function NewCalendar({}: Props) {
 					} else {
 						unCatIndex = temp.findIndex((category: Category) => category.name === "Uncategorized");
 					}
-					// console.log("unCatIndex", unCatIndex);
-					// console.log("temp", temp);
-					// console.log("temp[unCatIndex]", temp[unCatIndex]);
 					if (unCatIndex !== -1) {
 						temp[unCatIndex].foods.push({
 							id: temp[unCatIndex].foods.length,
@@ -264,7 +251,6 @@ export default function NewCalendar({}: Props) {
 				}
 			});
 			setIngredients(temp);
-			// console.log("temp", temp);
 			// Update local storage with the new ingredient data
 			updateLocalData("ingredients", temp);
 		}
@@ -291,11 +277,6 @@ export default function NewCalendar({}: Props) {
 		setSavedMeals(retrieveLocalData("savedMeals"));
 		setIngredients(retrieveLocalData("ingredients"));
 		setTimeout(() => setLoading(false), 500);
-		console.log("plannedMeals", plannedMeals);
-		// setLoading(false);
-		// console.log(retrieveLocalData("ingredients"));
-		// setInput(savedMeals[0]?.name);
-		// console.log
 	}, [currentMonthIndex]);
 
 	type Event = {
@@ -355,13 +336,8 @@ export default function NewCalendar({}: Props) {
 		return month === otherMonth;
 	}
 
-	useEffect(() => {
-		console.log("selectedDay ", selectedDay);
-	}, [selectedDay])
-
 	// Usage
 	const calendarData = getCalendarMonth(2024, 2); // May 2024
-	// console.log(calendarData);
 	return (
 		<>
 			<div className="lg:flex lg:h-full lg:flex-col">
@@ -454,18 +430,7 @@ export default function NewCalendar({}: Props) {
 							</button>
 						</div>
 						<div className="hidden md:ml-4 md:flex md:items-center">
-							<div className="relative">
-								{/*
-      Dropdown menu, show/hide based on menu state.
-
-      Entering: "transition ease-out duration-100"
-        From: "transform opacity-0 scale-95"
-        To: "transform opacity-100 scale-100"
-      Leaving: "transition ease-in duration-75"
-        From: "transform opacity-100 scale-100"
-        To: "transform opacity-0 scale-95"
-    */}
-							</div>
+							<div className="relative"></div>
 						</div>
 					</div>
 				</header>
@@ -502,8 +467,6 @@ export default function NewCalendar({}: Props) {
 					</div>
 					<div className="flex bg-gray-200 text-xs leading-6 text-gray-700 lg:flex-auto rounded-b-lg">
 						<div className={`hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-${daysInMonth.length} lg:gap-px rounded-b-lg`}>
-							{/* Always include: "relative py-2 px-3" Is current month, include: "bg-white" Is not current month, include: "bg-gray-50
-							text-gray-500" */}
 							{daysInMonth.map((week, weekIndex) =>
 								week.map((day, dayIndex) => {
 									const isLastWeek = weekIndex === daysInMonth.length - 1;
@@ -624,36 +587,8 @@ export default function NewCalendar({}: Props) {
 									}
 								})
 							)}
-							{/* Full size example with events (food) */}
-							{/* <div className="relative bg-white px-3 py-2">
-								<time dateTime="2022-01-03">3</time>
-								<ol className="mt-2">
-									<li>
-										<a href="#" className="group flex">
-											<p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">Design review</p>
-											<time
-												dateTime="2022-01-03T10:00"
-												className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block"
-											>
-												10AM
-											</time>
-										</a>
-									</li>
-									<li>
-										<a href="#" className="group flex">
-											<p className="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">Sales meeting</p>
-											<time
-												dateTime="2022-01-03T14:00"
-												className="ml-3 hidden flex-none text-gray-500 group-hover:text-indigo-600 xl:block"
-											>
-												2PM
-											</time>
-										</a>
-									</li>
-								</ol>
-							</div> */}
 							<div
-								className={`absolute bottom-48 mx-auto w-1/3 left-0 right-0 rounded-md bg-red-50 p-4 z-20 ${
+								className={`absolute bottom-48 mx-auto w-1/3 left-0 right-0 rounded-md bg-red-50 p-4 z-40 ${
 									!showError ? "hidden" : ""
 								}`}
 							>
@@ -684,37 +619,14 @@ export default function NewCalendar({}: Props) {
 						</div>
 
 						<div
-							className={`relative z-30 ${!showModal ? "hidden" : ""}`}
+							className={`relative z-30 ${!showModal ? "hidden" : ""} flex items-center justify-center`}
 							aria-labelledby="modal-title"
 							role="dialog"
 							aria-modal="true"
-							onLoad={() => {
-								console.log("modal loaded");
-							}}
 						>
-							{/*
-    Background backdrop, show/hide based on modal state.
-
-    Entering: "ease-out duration-300"
-From: "opacity-0"
-To: "opacity-100"
-    Leaving: "ease-in duration-200"
-From: "opacity-100"
-To: "opacity-0"
-  */}
 							<div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
 							<div className="fixed inset-0 z-10 w-screen overflow-y-auto">
 								<div className="flex min-h-full justify-center p-4 text-center sm:items-center sm:p-0 mt-12 md:mt-34">
-									{/*
-  Modal panel, show/hide based on modal state.
-
-  Entering: "ease-out duration-300"
-    From: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-    To: "opacity-100 translate-y-0 sm:scale-100"
-  Leaving: "ease-in duration-200"
-    From: "opacity-100 translate-y-0 sm:scale-100"
-    To: "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-*/}
 									<div
 										className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6 h-52 md:h-48"
 										ref={modalRef}
@@ -738,7 +650,6 @@ To: "opacity-0"
 														autoFocus
 														onChange={event => {
 															setInput(event.target.value);
-															// console.log(event.target.value);
 														}}
 														onFocus={() => setShowDropdown(true)}
 														className="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -771,11 +682,6 @@ To: "opacity-0"
 														id="options"
 														role="listbox"
 													>
-														{/*
-  Combobox option, manage highlight styles based on mouseenter/mouseleave and keyboard navigation.
-
-  Active: "text-white bg-indigo-600", Not Active: "text-gray-900"
-*/}
 														{savedMeals
 															.filter(meal => meal.name.toLowerCase().includes(input.toLowerCase()))
 															.map((meal, idx) => (
@@ -843,17 +749,6 @@ To: "opacity-0"
 						</div>
 
 						<div className={`isolate grid w-full grid-cols-7 grid-rows-${daysInMonth.length} gap-px lg:hidden`}>
-							{/*
-				// CALENDAR DAY ELEMENT
-    Always include: "flex h-14 flex-col py-2 px-3 hover:bg-gray-100 focus:z-10"
-    Is current month, include: "bg-white"
-    Is not current month, include: "bg-gray-50"
-    Is selected or is today, include: "font-semibold"
-    Is selected, include: "text-white"?
-    Is not selected and is today, include: "text-indigo-600"
-    Is not selected and is current month, and is not today, include: "text-gray-900"
-    Is not selected, is not current month, and is not today: "text-gray-500"
-  */}
 							{daysInMonth.map((week, weekIndex) =>
 								week.map((day, dayIndex) => {
 									const isLastWeek = weekIndex === daysInMonth.length - 1;
@@ -862,9 +757,6 @@ To: "opacity-0"
 									let classes;
 									let timeClasses;
 									// Selected day
-									// console.log("currentMonthIndex:", currentMonthIndex);
-									// console.log("day:", day);
-									// console.log("selectedDay:", selectedDay);
 									if (day == selectedDay) {
 										classes = "flex h-14 flex-col py-2 px-3 hover:bg-gray-100 focus:z-10 bg-white font-semibold text-white";
 										timeClasses = "flex h-6 w-6 ml-auto items-center justify-center rounded-full";
@@ -875,7 +767,6 @@ To: "opacity-0"
 										} else {
 											timeClasses += " bg-gray-900";
 										}
-										// console.log("timeClasses", timeClasses);
 										// Not selected day
 									} else {
 										classes = "flex h-14 flex-col py-2 px-3 hover:bg-gray-100 focus:z-10 bg-white";
@@ -932,7 +823,6 @@ To: "opacity-0"
 										} else if (isLastWeek && isLastDayOfWeek) {
 											classes += " rounded-br-lg";
 										}
-										// console.log(timeClasses);
 										return (
 											<div key={day} className={classes}>
 												<time
@@ -991,28 +881,6 @@ To: "opacity-0"
 									}
 								})
 							)}
-							{/* // return (
-									// 	<button
-									// 		type="button"
-									// 		className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10"
-									// 	>
-									// 		<time className="ml-auto">{day}</time>
-									// 	</button>
-									// );
-								})
-							)} */}
-							{/* <button type="button" className="flex h-14 flex-col bg-gray-50 px-3 py-2 text-gray-500 hover:bg-gray-100 focus:z-10">
-		//TIME ELEMENT
-      Always include: "ml-auto"
-      Is selected, include: "flex h-6 w-6 items-center justify-center rounded-full"
-      Is selected and is today, include: "bg-indigo-600"
-      Is selected and is not today, include: "bg-gray-900"
-   
-								<time dateTime="2021-12-27" className="ml-auto">
-									27
-								</time>
-								<span className="sr-only">0 events</span>
-							</button> */}
 						</div>
 					</div>
 				</div>
@@ -1022,16 +890,6 @@ To: "opacity-0"
 							<li className="group flex p-4 pr-6 focus-within:bg-gray-50 hover:bg-gray-50">
 								<div className="flex-auto flex items-center">
 									<p className="font-semibold text-gray-900">{plannedMeals[selectedDay].name}</p>
-									{/* <time dateTime="2022-01-15T09:00" className="mt-2 flex items-center text-gray-700">
-										<svg className="mr-2 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-											<path
-												fillRule="evenodd"
-												d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z"
-												clipRule="evenodd"
-											/>
-										</svg>
-										3PM
-									</time> */}
 								</div>
 								<button
 									className="ml-6 flex-none self-center rounded-md bg-white px-3 py-2 font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:ring-gray-400 opacity-100"

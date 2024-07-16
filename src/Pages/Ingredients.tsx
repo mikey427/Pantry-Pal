@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import IngredientAccordion from "../components/IngredientAccordion";
-import NewIngredientAccordion from "../components/NewIngredientAccordion";
 import PageHeader from "../components/PageHeader";
 
 type Props = {};
