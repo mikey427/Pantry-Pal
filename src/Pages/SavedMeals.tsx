@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { retrieveLocalData, updateLocalData } from "../utils";
 import { Meal } from "../types";
-import PageHeader from "../components/PageHeader";
-import Button from "../components/Button";
+import PageHeader from "../Components/PageHeader";
+import Button from "../Components/Button";
 
 // interface Meal {
 //     id: string;

@@ -1,6 +1,6 @@
 import React from "react";
-import ShoppingList from "../components/ShoppingList";
-import PageHeader from "../components/PageHeader";
+import ShoppingList from "../Components/ShoppingList";
+import PageHeader from "../Components/PageHeader";
 
 type Props = {};
 

@@ -2,12 +2,12 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Home from "./Pages/Home";
 import MealPlanner from "./Pages/MealPlanner";
-import Navbar from "./components/Navbar";
+import Navbar from "./Components/Navbar";
 import Ingredients from "./Pages/Ingredients";
 import ShoppingList from "./Pages/ShoppingListPage";
 import SavedMeals from "./Pages/SavedMeals";
-import { ThemeProvider } from "./components/ThemeProvider";
-import NewNavbar from "./components/Navbar";
+import { ThemeProvider } from "./Components/ThemeProvider";
+import NewNavbar from "./Components/Navbar";
 
 function App() {
 	return (

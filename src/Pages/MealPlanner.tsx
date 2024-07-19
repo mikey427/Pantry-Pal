@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Calendar from "../components/Calendar";
-import NewCalendar from "../components/NewCalendar";
+import Calendar from "../Components/Calendar";
+import NewCalendar from "../Components/NewCalendar";
 
 type Props = {};
 

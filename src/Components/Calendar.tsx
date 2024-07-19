@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { retrieveLocalData, updateLocalData } from "../utils";
 import { PlannedMonth, Meal, Category, Food } from "../types";
 import { getMonthName } from "../utils";
-import { useTheme } from "../components/ThemeProvider";
+import { useTheme } from "../Components/ThemeProvider";
 
 type Props = {};
 
