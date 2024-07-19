@@ -1,7 +1,7 @@
 # TODO.md
 
 [x] Add feature to add food back after unchecking on Calendar
-[] Make app mobile friendly
+[x] Make app mobile friendly
 [] Host app
 [] Add auto-shopping list feature
 [] Break large components down into smaller ones
